@@ -55,7 +55,7 @@ class CRUDSubmenu(
         obj_id: uuid.UUID,
         session: AsyncSession,
     ) -> Optional[Submenu]:
-        """Получение объекта по UUID."""
+        """Получение объекта по id."""
         db_obj = await session.execute(
             select(Submenu, func.count(Dish.id))
             .join(Dish, isouter=True)
@@ -75,6 +75,11 @@ class CRUDSubmenu(
         obj_id: uuid.UUID,
         session: AsyncSession,
     ) -> Optional[Submenu]:
+        """
+        Получение объекта по id.
+
+        При отсутствии объекта вызывает HTTPException со статусом 404.
+        """
         obj = await self.get(menu_id, obj_id, session)
         if obj is None:
             raise HTTPException(

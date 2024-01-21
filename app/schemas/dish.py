@@ -7,17 +7,22 @@ from app.core.constants import (DISH_DESCR_MAX_LEN, DISH_TITLE_MAX_LEN,
                                 PRICE_SCALE)
 
 
+PRICE_EXAMPLE = '20.50'
+
+
 class DishBase(BaseModel):
+    """Базовая схема для блюд."""
     model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
 
 
 class DishCreate(DishBase):
+    """Схема для создания блюд."""
     title: str = Field(max_length=DISH_TITLE_MAX_LEN)
     description: str = Field(max_length=DISH_DESCR_MAX_LEN)
-    price: str
+    price: str = Field(examples=[PRICE_EXAMPLE])
 
     @validator('price')
-    def convert_price_to_float(cls, value: str):
+    def convert_price_to_float_and_check_not_negative(cls, value: str):
         price = float(value)
         if price < 0:
             raise ValueError('price не может иметь отрицательное значение')
@@ -25,9 +30,10 @@ class DishCreate(DishBase):
 
 
 class DishUpdate(DishCreate):
+    """Схема для изменения блюд."""
     title: Optional[str] = Field(None, max_length=DISH_TITLE_MAX_LEN)
     description: Optional[str] = Field(None, max_length=DISH_DESCR_MAX_LEN)
-    price: Optional[str]
+    price: Optional[str] = Field(None, examples=[PRICE_EXAMPLE])
 
     @root_validator(pre=True)
     def field_cannot_be_null(
@@ -43,12 +49,13 @@ class DishUpdate(DishCreate):
 
 
 class DishDB(BaseModel):
+    """Схема для отображения данных о блюдах."""
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID
     title: str
     description: str
-    price: str
+    price: str = Field(examples=[PRICE_EXAMPLE])
     submenu_id: uuid.UUID
 
     @validator('price', pre=True)

@@ -7,15 +7,18 @@ from app.core.constants import MENU_DESCR_MAX_LEN, MENU_TITLE_MAX_LEN
 
 
 class MenuBase(BaseModel):
+    """Базовая схема для меню."""
     model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
 
 
 class MenuCreate(MenuBase):
+    """Схема для создания меню."""
     title: str = Field(max_length=MENU_TITLE_MAX_LEN)
     description: str = Field(max_length=MENU_DESCR_MAX_LEN)
 
 
 class MenuUpdate(MenuBase):
+    """Схема для изменения меню."""
     title: Optional[str] = Field(None, max_length=MENU_TITLE_MAX_LEN)
     description: Optional[str] = Field(None, max_length=MENU_DESCR_MAX_LEN)
 
@@ -33,6 +36,7 @@ class MenuUpdate(MenuBase):
 
 
 class MenuDB(BaseModel):
+    """Схема для отображения данных о меню."""
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID
@@ -41,5 +45,6 @@ class MenuDB(BaseModel):
 
 
 class MenuWithCountDB(MenuDB):
+    """Расширенная схема для отображения данных о меню."""
     dishes_count: int
     submenus_count: int

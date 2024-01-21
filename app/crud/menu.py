@@ -40,7 +40,7 @@ class CRUDMenu(
         obj_id: uuid.UUID,
         session: AsyncSession,
     ) -> Optional[Menu]:
-        """Получение объекта по UUID."""
+        """Получение объекта по id."""
         db_obj = await session.execute(
             select(Menu, func.count(distinct(Submenu.id)), func.count(Dish.id))
             .select_from(Menu)

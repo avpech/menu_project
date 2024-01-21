@@ -12,6 +12,19 @@ from app.schemas.dish import DishCreate, DishDB, DishUpdate
 router = APIRouter()
 
 
+@router.get(
+    '/{menu_id}/submenus/{submenu_id}/dishes',
+    response_model=list[DishDB]
+)
+async def get_all_dishes(
+    menu_id: uuid.UUID,
+    submenu_id: uuid.UUID,
+    session: AsyncSession = Depends(get_async_session)
+):
+    """Получить список всех блюд."""
+    return await dish_crud.get_multi(menu_id, submenu_id, session)
+
+
 @router.post(
     '/{menu_id}/submenus/{submenu_id}/dishes',
     response_model=DishDB,
@@ -23,20 +36,15 @@ async def create_dish(
     dish: DishCreate,
     session: AsyncSession = Depends(get_async_session)
 ):
+    """
+    Добавить блюдо.
+
+    - **title**: Название блюда.
+    - **description**: Описание блюда.
+    - **price**: Цена блюда.
+    """
     await check_submenu_url_exists(menu_id, submenu_id, session)
     return await dish_crud.create(submenu_id, dish, session)
-
-
-@router.get(
-    '/{menu_id}/submenus/{submenu_id}/dishes',
-    response_model=list[DishDB]
-)
-async def get_all_dishes(
-    menu_id: uuid.UUID,
-    submenu_id: uuid.UUID,
-    session: AsyncSession = Depends(get_async_session)
-):
-    return await dish_crud.get_multi(menu_id, submenu_id, session)
 
 
 @router.get(
@@ -49,6 +57,7 @@ async def get_dish(
     dish_id: uuid.UUID,
     session: AsyncSession = Depends(get_async_session)
 ):
+    """Получить блюдо по id."""
     return await dish_crud.get_or_404(menu_id, submenu_id, dish_id, session)
 
 
@@ -63,6 +72,13 @@ async def update_dish(
     obj_in: DishUpdate,
     session: AsyncSession = Depends(get_async_session)
 ):
+    """
+    Изменить блюдо.
+
+    - **title**: Название блюда.
+    - **description**: Описание блюда.
+    - **price**: Цена блюда.
+    """
     dish = await dish_crud.get_or_404(menu_id, submenu_id, dish_id, session)
     return await dish_crud.update(dish, obj_in, session)
 
@@ -77,5 +93,6 @@ async def delete_dish(
     dish_id: uuid.UUID,
     session: AsyncSession = Depends(get_async_session)
 ):
+    """Удалить блюдо."""
     dish = await dish_crud.get_or_404(menu_id, submenu_id, dish_id, session)
     return await dish_crud.remove(dish, session)

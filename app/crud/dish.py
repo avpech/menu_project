@@ -51,7 +51,7 @@ class CRUDDish(
         obj_id: uuid.UUID,
         session: AsyncSession,
     ) -> Optional[Dish]:
-        """Получение объекта по UUID."""
+        """Получение объекта по id."""
         dish = await session.execute(
             select(Dish)
             .join(Submenu, Submenu.id == Dish.submenu_id)
@@ -70,6 +70,11 @@ class CRUDDish(
         obj_id: uuid.UUID,
         session: AsyncSession,
     ) -> Optional[Dish]:
+        """
+        Получение объекта по id.
+
+        При отсутствии объекта вызывает HTTPException со статусом 404.
+        """
         obj = await self.get(menu_id, submenu_id, obj_id, session)
         if obj is None:
             raise HTTPException(

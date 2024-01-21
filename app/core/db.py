@@ -3,13 +3,14 @@ from typing import AsyncIterator
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
-from app.core.config import settings
+from app.core.config import db_url
 
-engine = create_async_engine(settings.database_url, echo=True)
+engine = create_async_engine(db_url)
 
 AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession)
 
 
 async def get_async_session() -> AsyncIterator[AsyncSession]:
+    """Асинхронный генератор сессий."""
     async with AsyncSessionLocal() as session:
         yield session

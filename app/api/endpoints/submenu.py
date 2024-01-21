@@ -13,6 +13,18 @@ from app.schemas.submenu import (SubmenuCreate, SubmenuDB, SubmenuUpdate,
 router = APIRouter()
 
 
+@router.get(
+    '/{menu_id}/submenus',
+    response_model=list[SubmenuWithCountDB]
+)
+async def get_all_submenu(
+    menu_id: uuid.UUID,
+    session: AsyncSession = Depends(get_async_session)
+):
+    """Получить список всех подменю."""
+    return await submenu_crud.get_multi(menu_id, session)
+
+
 @router.post(
     '/{menu_id}/submenus',
     response_model=SubmenuDB,
@@ -23,19 +35,14 @@ async def create_submenu(
     submenu: SubmenuCreate,
     session: AsyncSession = Depends(get_async_session)
 ):
+    """
+    Создать подменю.
+
+    - **title**: Название подменю.
+    - **description**: Описание подменю.
+    """
     await check_menu_url_exists(menu_id, session)
     return await submenu_crud.create(menu_id, submenu, session)
-
-
-@router.get(
-    '/{menu_id}/submenus',
-    response_model=list[SubmenuWithCountDB]
-)
-async def get_all_submenu(
-    menu_id: uuid.UUID,
-    session: AsyncSession = Depends(get_async_session)
-):
-    return await submenu_crud.get_multi(menu_id, session)
 
 
 @router.get(
@@ -47,6 +54,7 @@ async def get_submenu(
     submenu_id: uuid.UUID,
     session: AsyncSession = Depends(get_async_session)
 ):
+    """Получить подменю по id."""
     return await submenu_crud.get_or_404(menu_id, submenu_id, session)
 
 
@@ -60,6 +68,12 @@ async def update_submenu(
     obj_in: SubmenuUpdate,
     session: AsyncSession = Depends(get_async_session)
 ):
+    """
+    Изменить подменю.
+
+    - **title**: Название подменю.
+    - **description**: Описание подменю.
+    """
     submenu = await submenu_crud.get_or_404(menu_id, submenu_id, session)
     return await submenu_crud.update(submenu, obj_in, session)
 
@@ -73,5 +87,6 @@ async def delete_submenu(
     submenu_id: uuid.UUID,
     session: AsyncSession = Depends(get_async_session)
 ):
+    """Удалить подменю."""
     submenu = await submenu_crud.get_or_404(menu_id, submenu_id, session)
     return await submenu_crud.remove(submenu, session)

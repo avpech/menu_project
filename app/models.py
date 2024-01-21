@@ -23,6 +23,7 @@ class Base(DeclarativeBase):
 
 
 class Menu(Base):
+    """Модель для меню."""
     title: Mapped[str] = mapped_column(
         String(MENU_TITLE_MAX_LEN),
         unique=True
@@ -34,6 +35,7 @@ class Menu(Base):
 
 
 class Submenu(Base):
+    """Модель для подменю."""
     title: Mapped[str] = mapped_column(String(SUBMENU_TITLE_MAX_LEN))
     description: Mapped[str] = mapped_column(
         String(SUBMENU_DESCR_MAX_LEN)
@@ -43,6 +45,7 @@ class Submenu(Base):
 
 
 class Dish(Base):
+    """Модель для блюд."""
     title: Mapped[str] = mapped_column(String(DISH_TITLE_MAX_LEN))
     description: Mapped[str] = mapped_column(String(DISH_DESCR_MAX_LEN))
     price: Mapped[float] = mapped_column()

@@ -29,7 +29,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         obj_id: uuid.UUID,
         session: AsyncSession,
     ) -> Optional[ModelType]:
-        """Получение объекта по UUID."""
+        """Получение объекта по id."""
         return await session.get(self.model, obj_id)
 
     async def get_or_404(
@@ -37,6 +37,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         obj_id: uuid.UUID,
         session: AsyncSession,
     ) -> Optional[ModelType]:
+        """
+        Получение объекта по id.
+
+        При отсутствии объекта вызывает HTTPException со статусом 404.
+        """
         obj = await self.get(obj_id, session)
         if obj is None:
             raise HTTPException(

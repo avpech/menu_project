@@ -35,6 +35,7 @@ async def check_menu_url_exists(
         menu_id: uuid.UUID,
         session: AsyncSession
 ) -> None:
+    """Проверка наличия меню по url с указанным menu_id."""
     exists_criteria = (
         select(Menu).where(Menu.id == menu_id)
     ).exists()
@@ -53,6 +54,7 @@ async def check_submenu_url_exists(
         submenu_id: uuid.UUID,
         session: AsyncSession
 ) -> None:
+    """Проверка наличия подменю по url с указанными menu_id и submenu_id."""
     menu_exists_criteria = (
         select(Menu).where(Menu.id == menu_id)
     ).exists()

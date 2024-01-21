@@ -7,15 +7,18 @@ from app.core.constants import SUBMENU_DESCR_MAX_LEN, SUBMENU_TITLE_MAX_LEN
 
 
 class SubmenuBase(BaseModel):
+    """Базовая схема для подменю."""
     model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
 
 
 class SubmenuCreate(SubmenuBase):
+    """Схема для создания подменю."""
     title: str = Field(max_length=SUBMENU_TITLE_MAX_LEN)
     description: str = Field(max_length=SUBMENU_DESCR_MAX_LEN)
 
 
 class SubmenuUpdate(SubmenuBase):
+    """Схема для изменения подменю."""
     title: Optional[str] = Field(None, max_length=SUBMENU_TITLE_MAX_LEN)
     description: Optional[str] = Field(None, max_length=SUBMENU_DESCR_MAX_LEN)
 
@@ -33,6 +36,7 @@ class SubmenuUpdate(SubmenuBase):
 
 
 class SubmenuDB(BaseModel):
+    """Схема для отображения данных о подменю."""
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID
@@ -42,4 +46,5 @@ class SubmenuDB(BaseModel):
 
 
 class SubmenuWithCountDB(SubmenuDB):
+    """Расширенная схема для отображения данных о подменю."""
     dishes_count: int
