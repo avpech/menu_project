@@ -68,6 +68,8 @@ psql -U postgresuser
 ```
 ```bash
 CREATE DATABASE db_name;
+```
+```bash
 \q
 ```
 где `postgresuser` - пользователь Postgres, `db_name` - имя базы данных

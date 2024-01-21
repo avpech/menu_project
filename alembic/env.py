@@ -14,8 +14,13 @@ load_dotenv('.env')
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
+db_url = (
+    f'postgresql+asyncpg://{os.environ["DB_USER"]}:'
+    f'{os.environ["DB_PASSWORD"]}@{os.environ["DB_HOST"]}:'
+    f'{os.environ["DB_PORT"]}/{os.environ["DB_NAME"]}'
+)
 config = context.config
-config.set_main_option('sqlalchemy.url', os.environ['DATABASE_URL'])
+config.set_main_option('sqlalchemy.url', db_url)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
