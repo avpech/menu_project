@@ -6,7 +6,6 @@ from pydantic import BaseModel, ConfigDict, Field, root_validator, validator
 from app.core.constants import (DISH_DESCR_MAX_LEN, DISH_TITLE_MAX_LEN,
                                 PRICE_SCALE)
 
-
 PRICE_EXAMPLE = '20.50'
 
 
