@@ -1,7 +1,7 @@
 import uuid
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict, Field, root_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.core.constants import SUBMENU_DESCR_MAX_LEN, SUBMENU_TITLE_MAX_LEN
 
@@ -22,7 +22,7 @@ class SubmenuUpdate(SubmenuBase):
     title: Optional[str] = Field(None, max_length=SUBMENU_TITLE_MAX_LEN)
     description: Optional[str] = Field(None, max_length=SUBMENU_DESCR_MAX_LEN)
 
-    @root_validator(pre=True)
+    @model_validator(mode='before')
     def field_cannot_be_null(
         cls,
         values: dict[str, Optional[str]]

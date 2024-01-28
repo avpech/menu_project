@@ -1,7 +1,8 @@
 import uuid
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict, Field, root_validator, validator
+from pydantic import (BaseModel, ConfigDict, Field, field_validator,
+                      model_validator)
 
 from app.core.constants import (DISH_DESCR_MAX_LEN, DISH_TITLE_MAX_LEN,
                                 PRICE_SCALE)
@@ -20,7 +21,8 @@ class DishCreate(DishBase):
     description: str = Field(max_length=DISH_DESCR_MAX_LEN)
     price: str = Field(examples=[PRICE_EXAMPLE])
 
-    @validator('price')
+    @field_validator('price')
+    @classmethod
     def convert_price_to_float_and_check_not_negative(cls, value: str):
         price = float(value)
         if price < 0:
@@ -34,7 +36,7 @@ class DishUpdate(DishCreate):
     description: Optional[str] = Field(None, max_length=DISH_DESCR_MAX_LEN)
     price: Optional[str] = Field(None, examples=[PRICE_EXAMPLE])
 
-    @root_validator(pre=True)
+    @model_validator(mode='before')
     def field_cannot_be_null(
         cls,
         values: dict[str, Optional[str]]
@@ -57,6 +59,6 @@ class DishDB(BaseModel):
     price: str = Field(examples=[PRICE_EXAMPLE])
     submenu_id: uuid.UUID
 
-    @validator('price', pre=True)
+    @field_validator('price', mode='before')
     def convert_price_to_str(cls, value: float):
         return f'{value:.{PRICE_SCALE}f}'

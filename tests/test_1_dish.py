@@ -1,13 +1,10 @@
-from httpx import AsyncClient
 from http import HTTPStatus
+
 import pytest
-from conftest import UNEXISTING_UUID, TestingSessionLocal
-from sqlalchemy import select, func
-from conftest import Menu, Submenu, Dish
-
-
-DISHES_URL = '/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes'
-DISH_OBJ_URL = '/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}'
+from conftest import (DISH_OBJ_URL, DISHES_URL, UNEXISTING_UUID, Dish,
+                      TestingSessionLocal)
+from httpx import AsyncClient
+from sqlalchemy import func, select
 
 
 async def test_dish_get_empty_list(client: AsyncClient, menu, submenu):
@@ -103,7 +100,9 @@ async def test_dish_relation(client: AsyncClient, menu, submenu):
 
 
 @pytest.mark.parametrize('dish_title', [None, True, 123])
-async def test_dish_post_invalid_title(client: AsyncClient, dish_title, menu, submenu):
+async def test_dish_post_invalid_title(
+    client: AsyncClient, dish_title, menu, submenu
+):
     url = DISHES_URL.format(menu_id=menu.id, submenu_id=submenu.id)
     json = {
         'title': dish_title,
@@ -118,7 +117,9 @@ async def test_dish_post_invalid_title(client: AsyncClient, dish_title, menu, su
 
 
 @pytest.mark.parametrize('dish_description', [None, True, 123])
-async def test_dish_post_invalid_description(client: AsyncClient, dish_description, menu, submenu):
+async def test_dish_post_invalid_description(
+    client: AsyncClient, dish_description, menu, submenu
+):
     url = DISHES_URL.format(menu_id=menu.id, submenu_id=submenu.id)
     json = {
         'title': 'dish_title',
@@ -133,7 +134,9 @@ async def test_dish_post_invalid_description(client: AsyncClient, dish_descripti
 
 
 @pytest.mark.parametrize('dish_price', [None, True, 123, '-234', 'ds34'])
-async def test_dish_post_invalid_price(client: AsyncClient, dish_price, menu, submenu):
+async def test_dish_post_invalid_price(
+    client: AsyncClient, dish_price, menu, submenu
+):
     url = DISHES_URL.format(menu_id=menu.id, submenu_id=submenu.id)
     json = {
         'title': 'dish_title',
@@ -148,7 +151,9 @@ async def test_dish_post_invalid_price(client: AsyncClient, dish_price, menu, su
 
 
 @pytest.mark.parametrize('field', ['title', 'description', 'price'])
-async def test_dish_post_missing_field(client: AsyncClient, field, menu, submenu):
+async def test_dish_post_missing_field(
+    client: AsyncClient, field, menu, submenu
+):
     url = DISHES_URL.format(menu_id=menu.id, submenu_id=submenu.id)
     json = {
         'title': 'submenu_title',
@@ -209,7 +214,9 @@ async def test_dish_get_if_menu_404(client: AsyncClient, menu, submenu, dish):
     )
 
 
-async def test_dish_get_if_submenu_404(client: AsyncClient, menu, submenu, dish):
+async def test_dish_get_if_submenu_404(
+    client: AsyncClient, menu, submenu, dish
+):
     url = DISH_OBJ_URL.format(
         menu_id=menu.id, submenu_id=UNEXISTING_UUID, dish_id=dish.id
     )
@@ -288,7 +295,9 @@ async def test_dish_patch_404(client: AsyncClient, menu, submenu):
     )
 
 
-async def test_dish_patch_if_menu_404(client: AsyncClient, menu, submenu, dish):
+async def test_dish_patch_if_menu_404(
+    client: AsyncClient, menu, submenu, dish
+):
     url = DISH_OBJ_URL.format(
         menu_id=UNEXISTING_UUID, submenu_id=submenu.id, dish_id=dish.id
     )
@@ -304,7 +313,9 @@ async def test_dish_patch_if_menu_404(client: AsyncClient, menu, submenu, dish):
     )
 
 
-async def test_dish_patch_if_submenu_404(client: AsyncClient, menu, submenu, dish):
+async def test_dish_patch_if_submenu_404(
+    client: AsyncClient, menu, submenu, dish
+):
     url = DISH_OBJ_URL.format(
         menu_id=menu.id, submenu_id=UNEXISTING_UUID, dish_id=dish.id
     )
@@ -321,7 +332,9 @@ async def test_dish_patch_if_submenu_404(client: AsyncClient, menu, submenu, dis
 
 
 @pytest.mark.parametrize('field', ['title', 'description'])
-async def test_dish_patch_data(client: AsyncClient, menu, submenu, dish, field):
+async def test_dish_patch_data(
+    client: AsyncClient, menu, submenu, dish, field
+):
     url = DISH_OBJ_URL.format(
         menu_id=menu.id, submenu_id=submenu.id, dish_id=dish.id
     )
@@ -355,7 +368,9 @@ async def test_dish_patch_price(client: AsyncClient, menu, submenu, dish):
 
 
 @pytest.mark.parametrize('dish_title', [None, True, 123])
-async def test_dish_patch_invalid_title(client: AsyncClient, dish_title, menu, submenu, dish):
+async def test_dish_patch_invalid_title(
+    client: AsyncClient, dish_title, menu, submenu, dish
+):
     url = DISH_OBJ_URL.format(
         menu_id=menu.id, submenu_id=submenu.id, dish_id=dish.id
     )
@@ -373,7 +388,9 @@ async def test_dish_patch_invalid_title(client: AsyncClient, dish_title, menu, s
 
 
 @pytest.mark.parametrize('dish_description', [None, True, 123])
-async def test_dish_patch_invalid_description(client: AsyncClient, dish_description, menu, submenu, dish):
+async def test_dish_patch_invalid_description(
+    client: AsyncClient, dish_description, menu, submenu, dish
+):
     url = DISH_OBJ_URL.format(
         menu_id=menu.id, submenu_id=submenu.id, dish_id=dish.id
     )
@@ -391,7 +408,9 @@ async def test_dish_patch_invalid_description(client: AsyncClient, dish_descript
 
 
 @pytest.mark.parametrize('dish_price', [None, True, 123, '-234', 'ds34'])
-async def test_dish_patch_invalid_price(client: AsyncClient, dish_price, menu, submenu, dish):
+async def test_dish_patch_invalid_price(
+    client: AsyncClient, dish_price, menu, submenu, dish
+):
     url = DISH_OBJ_URL.format(
         menu_id=menu.id, submenu_id=submenu.id, dish_id=dish.id
     )
@@ -432,7 +451,9 @@ async def test_dish_delete_404(client: AsyncClient, menu, submenu):
     )
 
 
-async def test_dish_delete_if_menu_404(client: AsyncClient, menu, submenu, dish):
+async def test_dish_delete_if_menu_404(
+    client: AsyncClient, menu, submenu, dish
+):
     url = DISH_OBJ_URL.format(
         menu_id=UNEXISTING_UUID, submenu_id=submenu.id, dish_id=dish.id
     )
@@ -444,7 +465,9 @@ async def test_dish_delete_if_menu_404(client: AsyncClient, menu, submenu, dish)
     )
 
 
-async def test_dish_delete_if_submenu_404(client: AsyncClient, menu, submenu, dish):
+async def test_dish_delete_if_submenu_404(
+    client: AsyncClient, menu, submenu, dish
+):
     url = DISH_OBJ_URL.format(
         menu_id=menu.id, submenu_id=UNEXISTING_UUID, dish_id=dish.id
     )
@@ -456,7 +479,9 @@ async def test_dish_delete_if_submenu_404(client: AsyncClient, menu, submenu, di
     )
 
 
-async def test_dish_delete_object_deleted(client: AsyncClient, menu, submenu, dish):
+async def test_dish_delete_object_deleted(
+    client: AsyncClient, menu, submenu, dish
+):
     url = DISH_OBJ_URL.format(
         menu_id=menu.id, submenu_id=submenu.id, dish_id=dish.id
     )

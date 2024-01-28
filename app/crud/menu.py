@@ -28,7 +28,6 @@ class CRUDMenu(
         )
         menus = []
         for db_obj in db_objs:
-            print(db_obj)
             menu, submenus_count, dishes_count = db_obj
             menu.submenus_count = submenus_count
             menu.dishes_count = dishes_count

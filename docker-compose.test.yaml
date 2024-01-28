@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  postgres_menu_test:
+    container_name: postgres_menu_test
+    image: postgres:15.1-alpine
+    restart: always
+    volumes:
+      - db_test_menu_volume:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_USER: "${DB_USER}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+      POSTGRES_DB: "${TEST_DB_NAME}"
+    ports:
+      - "5433:5432"
+    networks:
+      - test_menu_network
+    healthcheck:
+      test: pg_isready -U ${DB_USER}
+      interval: 5s
+      timeout: 5s
+      retries: 40
+      start_period: 5s
+
+  test_api_menu:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DB_HOST: "postgres_menu_test"
+    tty: true
+    entrypoint: sh -c "pytest"
+    networks:
+      - test_menu_network
+    depends_on:
+      postgres_menu_test:
+        condition: service_healthy
+    env_file:
+      - ./.env
+
+networks:
+  test_menu_network:
+    name: test_menu_network
+
+volumes:
+  db_test_menu_volume:
