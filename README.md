@@ -96,12 +96,12 @@ psql -U postgresuser
 ```
 ```bash
 CREATE DATABASE db_name;
-CREATE DATABASE test_db_name;
+CREATE DATABASE db_test;
 ```
 ```bash
 \q
 ```
-где `postgresuser` - пользователь Postgres, `db_name` - имя базы данных, `test_db_name` - имя тестовой базы данных
+где `postgresuser` - пользователь Postgres, `db_name` - имя базы данных, `db_test` - имя тестовой базы данных
 
 - Выполнить миграции
 
