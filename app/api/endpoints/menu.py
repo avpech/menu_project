@@ -4,10 +4,9 @@ from http import HTTPStatus
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.validators import check_menu_title_duplicate
 from app.core.db import get_async_session
-from app.crud import menu_crud
 from app.schemas.menu import MenuCreate, MenuDB, MenuUpdate, MenuWithCountDB
+from app.services import menu_service
 
 router = APIRouter()
 
@@ -17,7 +16,7 @@ async def get_all_menu(
     session: AsyncSession = Depends(get_async_session)
 ):
     """Получить список всех меню."""
-    return await menu_crud.get_multi(session)
+    return await menu_service.get_list(session)
 
 
 @router.post('/', response_model=MenuDB, status_code=HTTPStatus.CREATED)
@@ -31,8 +30,7 @@ async def create_menu(
     - **title**: Название меню.
     - **description**: Описание меню.
     """
-    await check_menu_title_duplicate(menu.title, session)
-    return await menu_crud.create(menu, session)
+    return await menu_service.create(menu, session)
 
 
 @router.get('/{menu_id}', response_model=MenuWithCountDB)
@@ -41,7 +39,7 @@ async def get_menu(
     session: AsyncSession = Depends(get_async_session)
 ):
     """Получить меню по id."""
-    return await menu_crud.get_or_404(menu_id, session)
+    return await menu_service.get(menu_id, session)
 
 
 @router.patch('/{menu_id}', response_model=MenuDB)
@@ -56,10 +54,7 @@ async def update_menu(
     - **title**: Название меню.
     - **description**: Описание меню.
     """
-    menu = await menu_crud.get_or_404(menu_id, session)
-    if obj_in.title is not None and obj_in.title != menu.title:
-        await check_menu_title_duplicate(obj_in.title, session)
-    return await menu_crud.update(menu, obj_in, session)
+    return await menu_service.update(menu_id, obj_in, session)
 
 
 @router.delete('/{menu_id}', response_model=MenuDB)
@@ -68,5 +63,4 @@ async def delete_menu(
     session: AsyncSession = Depends(get_async_session)
 ):
     """Удалить меню."""
-    menu = await menu_crud.get_or_404(menu_id, session)
-    return await menu_crud.remove(menu, session)
+    return await menu_service.delete(menu_id, session)

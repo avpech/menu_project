@@ -4,11 +4,10 @@ from http import HTTPStatus
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.validators import check_menu_url_exists
 from app.core.db import get_async_session
-from app.crud import submenu_crud
 from app.schemas.submenu import (SubmenuCreate, SubmenuDB, SubmenuUpdate,
                                  SubmenuWithCountDB)
+from app.services import submenu_service
 
 router = APIRouter()
 
@@ -22,7 +21,7 @@ async def get_all_submenu(
     session: AsyncSession = Depends(get_async_session)
 ):
     """Получить список всех подменю."""
-    return await submenu_crud.get_multi(menu_id, session)
+    return await submenu_service.get_list(menu_id, session)
 
 
 @router.post(
@@ -41,8 +40,7 @@ async def create_submenu(
     - **title**: Название подменю.
     - **description**: Описание подменю.
     """
-    await check_menu_url_exists(menu_id, session)
-    return await submenu_crud.create(menu_id, submenu, session)
+    return await submenu_service.create(menu_id, submenu, session)
 
 
 @router.get(
@@ -55,7 +53,7 @@ async def get_submenu(
     session: AsyncSession = Depends(get_async_session)
 ):
     """Получить подменю по id."""
-    return await submenu_crud.get_or_404(menu_id, submenu_id, session)
+    return await submenu_service.get(menu_id, submenu_id, session)
 
 
 @router.patch(
@@ -74,8 +72,7 @@ async def update_submenu(
     - **title**: Название подменю.
     - **description**: Описание подменю.
     """
-    submenu = await submenu_crud.get_or_404(menu_id, submenu_id, session)
-    return await submenu_crud.update(submenu, obj_in, session)
+    return await submenu_service.update(menu_id, submenu_id, obj_in, session)
 
 
 @router.delete(
@@ -88,5 +85,4 @@ async def delete_submenu(
     session: AsyncSession = Depends(get_async_session)
 ):
     """Удалить подменю."""
-    submenu = await submenu_crud.get_or_404(menu_id, submenu_id, session)
-    return await submenu_crud.remove(submenu, session)
+    return await submenu_service.delete(menu_id, submenu_id, session)

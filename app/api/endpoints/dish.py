@@ -4,10 +4,9 @@ from http import HTTPStatus
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.validators import check_submenu_url_exists
 from app.core.db import get_async_session
-from app.crud import dish_crud
 from app.schemas.dish import DishCreate, DishDB, DishUpdate
+from app.services import dish_service
 
 router = APIRouter()
 
@@ -22,7 +21,7 @@ async def get_all_dishes(
     session: AsyncSession = Depends(get_async_session)
 ):
     """Получить список всех блюд."""
-    return await dish_crud.get_multi(menu_id, submenu_id, session)
+    return await dish_service.get_list(menu_id, submenu_id, session)
 
 
 @router.post(
@@ -43,8 +42,7 @@ async def create_dish(
     - **description**: Описание блюда.
     - **price**: Цена блюда.
     """
-    await check_submenu_url_exists(menu_id, submenu_id, session)
-    return await dish_crud.create(submenu_id, dish, session)
+    return await dish_service.create(menu_id, submenu_id, dish, session)
 
 
 @router.get(
@@ -58,7 +56,7 @@ async def get_dish(
     session: AsyncSession = Depends(get_async_session)
 ):
     """Получить блюдо по id."""
-    return await dish_crud.get_or_404(menu_id, submenu_id, dish_id, session)
+    return await dish_service.get(menu_id, submenu_id, dish_id, session)
 
 
 @router.patch(
@@ -79,8 +77,7 @@ async def update_dish(
     - **description**: Описание блюда.
     - **price**: Цена блюда.
     """
-    dish = await dish_crud.get_or_404(menu_id, submenu_id, dish_id, session)
-    return await dish_crud.update(dish, obj_in, session)
+    return await dish_service.update(menu_id, submenu_id, dish_id, obj_in, session)
 
 
 @router.delete(
@@ -94,5 +91,4 @@ async def delete_dish(
     session: AsyncSession = Depends(get_async_session)
 ):
     """Удалить блюдо."""
-    dish = await dish_crud.get_or_404(menu_id, submenu_id, dish_id, session)
-    return await dish_crud.remove(dish, session)
+    return await dish_service.delete(menu_id, submenu_id, dish_id, session)
