@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.sql import text
 
 from app.core.db import get_async_session
 from app.main import app
@@ -50,16 +51,34 @@ def event_loop():
     loop.close()
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(autouse=True, scope='session')
 async def init_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    yield
+    yield engine
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
 
 
-@pytest.fixture()
+@pytest.fixture(autouse=True, scope='function')
+async def clear_db(init_db):
+    InternalSession = sessionmaker(
+        expire_on_commit=False,
+        autocommit=False,
+        autoflush=False,
+        bind=init_db,
+        class_=AsyncSession,
+    )
+    async with InternalSession() as session:
+        await session.begin()
+        yield session
+        await session.rollback()
+        for table in reversed(Base.metadata.sorted_tables):
+            await session.execute(text(f'TRUNCATE {table.name} CASCADE'))
+            await session.commit()
+
+
+@pytest.fixture(scope='session')
 async def client():
     async with AsyncClient(app=app, base_url="http://test") as client:
         yield client

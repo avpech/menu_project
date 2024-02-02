@@ -1,10 +1,11 @@
 from http import HTTPStatus
 
 import pytest
-from conftest import (DISH_OBJ_URL, DISHES_URL, UNEXISTING_UUID, Dish,
-                      TestingSessionLocal)
 from httpx import AsyncClient
 from sqlalchemy import func, select
+
+from conftest import (DISH_OBJ_URL, DISHES_URL, UNEXISTING_UUID, Dish,
+                      TestingSessionLocal)
 
 
 async def test_dish_get_empty_list(client: AsyncClient, menu, submenu):
