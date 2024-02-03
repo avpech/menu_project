@@ -1,13 +1,22 @@
 import uuid
-from typing import List
 
 from sqlalchemy import CheckConstraint, ForeignKey, String
-from sqlalchemy.orm import (DeclarativeBase, Mapped, declared_attr,
-                            mapped_column, relationship)
+from sqlalchemy.orm import (
+    DeclarativeBase,
+    Mapped,
+    declared_attr,
+    mapped_column,
+    relationship,
+)
 
-from app.core.constants import (DISH_DESCR_MAX_LEN, DISH_TITLE_MAX_LEN,
-                                MENU_DESCR_MAX_LEN, MENU_TITLE_MAX_LEN,
-                                SUBMENU_DESCR_MAX_LEN, SUBMENU_TITLE_MAX_LEN)
+from app.core.constants import (
+    DISH_DESCR_MAX_LEN,
+    DISH_TITLE_MAX_LEN,
+    MENU_DESCR_MAX_LEN,
+    MENU_TITLE_MAX_LEN,
+    SUBMENU_DESCR_MAX_LEN,
+    SUBMENU_TITLE_MAX_LEN,
+)
 
 
 class Base(DeclarativeBase):
@@ -29,7 +38,7 @@ class Menu(Base):
         unique=True
     )
     description: Mapped[str] = mapped_column(String(MENU_DESCR_MAX_LEN))
-    submenus: Mapped[List['Submenu']] = relationship(
+    submenus: Mapped[list['Submenu']] = relationship(
         cascade='all, delete-orphan'
     )
 
@@ -41,7 +50,7 @@ class Submenu(Base):
         String(SUBMENU_DESCR_MAX_LEN)
     )
     menu_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('menu.id'))
-    dishes: Mapped[List['Dish']] = relationship(cascade='all, delete-orphan')
+    dishes: Mapped[list['Dish']] = relationship(cascade='all, delete-orphan')
 
 
 class Dish(Base):

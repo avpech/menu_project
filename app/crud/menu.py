@@ -1,6 +1,7 @@
 import uuid
-from typing import Optional
+from http import HTTPStatus
 
+from fastapi import HTTPException
 from sqlalchemy import distinct, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -14,7 +15,7 @@ class CRUDMenu(
 ):
     """Класс CRUD-операций для модели Menu."""
 
-    async def get_multi(
+    async def get_multi_annotated(
         self,
         session: AsyncSession
     ) -> list[Menu]:
@@ -34,11 +35,11 @@ class CRUDMenu(
             menus.append(menu)
         return menus
 
-    async def get(
+    async def get_annotated(
         self,
         obj_id: uuid.UUID,
         session: AsyncSession,
-    ) -> Optional[Menu]:
+    ) -> Menu | None:
         """Получение объекта по id."""
         db_obj = await session.execute(
             select(Menu, func.count(distinct(Submenu.id)), func.count(Dish.id))
@@ -55,6 +56,24 @@ class CRUDMenu(
         menu.submenus_count = submenus_count
         menu.dishes_count = dishes_count
         return menu
+
+    async def get_annotated_or_404(
+        self,
+        obj_id: uuid.UUID,
+        session: AsyncSession,
+    ) -> Menu:
+        """
+        Получение объекта по id.
+
+        При отсутствии объекта вызывает HTTPException со статусом 404.
+        """
+        obj = await self.get_annotated(obj_id, session)
+        if obj is None:
+            raise HTTPException(
+                status_code=HTTPStatus.NOT_FOUND,
+                detail='menu not found'
+            )
+        return obj
 
 
 menu_crud = CRUDMenu(Menu)

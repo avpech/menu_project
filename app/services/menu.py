@@ -14,11 +14,11 @@ class MenuService:
         self,
         session: AsyncSession
     ):
-        menu_list_cache = await cache.get(f"{LIST_PREFIX}")
+        menu_list_cache = await cache.get(f'{LIST_PREFIX}')
         if menu_list_cache is not None:
             return menu_list_cache
-        menu_list = await menu_crud.get_multi(session)
-        await cache.set(f"{LIST_PREFIX}", menu_list)
+        menu_list = await menu_crud.get_multi_annotated(session)
+        await cache.set(f'{LIST_PREFIX}', menu_list)
         return menu_list
 
     async def create(
@@ -28,7 +28,7 @@ class MenuService:
     ):
         await check_menu_title_duplicate(menu.title, session)
         new_menu = await menu_crud.create(menu, session)
-        await cache.invalidate(keys=[f"{LIST_PREFIX}"])
+        await cache.invalidate(keys=[f'{LIST_PREFIX}'])
         return new_menu
 
     async def get(
@@ -36,11 +36,11 @@ class MenuService:
         menu_id: uuid.UUID,
         session: AsyncSession
     ):
-        menu_cache = await cache.get(f"{OBJ_PREFIX}:{menu_id}")
+        menu_cache = await cache.get(f'{OBJ_PREFIX}:{menu_id}')
         if menu_cache is not None:
             return menu_cache
-        menu = await menu_crud.get_or_404(menu_id, session)
-        await cache.set(f"{OBJ_PREFIX}:{menu_id}", menu)
+        menu = await menu_crud.get_annotated_or_404(menu_id, session)
+        await cache.set(f'{OBJ_PREFIX}:{menu_id}', menu)
         return menu
 
     async def update(
@@ -55,8 +55,8 @@ class MenuService:
         updated_menu = await menu_crud.update(menu, obj_in, session)
         await cache.invalidate(
             keys=[
-                f"{LIST_PREFIX}",
-                f"{OBJ_PREFIX}:{menu_id}"
+                f'{LIST_PREFIX}',
+                f'{OBJ_PREFIX}:{menu_id}'
             ]
         )
         return updated_menu
@@ -70,9 +70,9 @@ class MenuService:
         deleted_menu = await menu_crud.remove(menu, session)
         await cache.invalidate(
             keys=[
-                f"{LIST_PREFIX}",
+                f'{LIST_PREFIX}',
             ],
-            pattern=f"*{menu_id}*"
+            pattern=f'*{menu_id}*'
         )
         return deleted_menu
 

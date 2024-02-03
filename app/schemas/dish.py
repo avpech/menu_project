@@ -1,11 +1,9 @@
 import uuid
-from typing import Optional
 
-from pydantic import (BaseModel, ConfigDict, Field, field_validator,
-                      model_validator)
+from pydantic import BaseModel, ConfigDict, Field, field_validator, validator
 
-from app.core.constants import (DISH_DESCR_MAX_LEN, DISH_TITLE_MAX_LEN,
-                                PRICE_SCALE)
+from app.core.constants import DISH_DESCR_MAX_LEN, DISH_TITLE_MAX_LEN, PRICE_SCALE
+from app.schemas.validators import convert_price_to_float, field_cannot_be_null
 
 PRICE_EXAMPLE = '20.50'
 
@@ -21,32 +19,17 @@ class DishCreate(DishBase):
     description: str = Field(max_length=DISH_DESCR_MAX_LEN)
     price: str = Field(examples=[PRICE_EXAMPLE])
 
-    @field_validator('price')
-    @classmethod
-    def convert_price_to_float_and_check_not_negative(cls, value: str):
-        price = float(value)
-        if price < 0:
-            raise ValueError('price не может иметь отрицательное значение')
-        return price
+    _convert_price = validator('price', allow_reuse=True)(convert_price_to_float)
 
 
-class DishUpdate(DishCreate):
+class DishUpdate(DishBase):
     """Схема для изменения блюд."""
-    title: Optional[str] = Field(None, max_length=DISH_TITLE_MAX_LEN)
-    description: Optional[str] = Field(None, max_length=DISH_DESCR_MAX_LEN)
-    price: Optional[str] = Field(None, examples=[PRICE_EXAMPLE])
+    title: str | None = Field(None, max_length=DISH_TITLE_MAX_LEN)
+    description: str | None = Field(None, max_length=DISH_DESCR_MAX_LEN)
+    price: str | None = Field(None, examples=[PRICE_EXAMPLE])
 
-    @model_validator(mode='before')
-    def field_cannot_be_null(
-        cls,
-        values: dict[str, Optional[str]]
-    ) -> dict[str, Optional[str]]:
-        """Валидация на недопустимость передачи полю значения null."""
-
-        for field in ('title', 'description', 'price'):
-            if field in values and values[field] is None:
-                raise ValueError(f'Значение поля {field} не может быть null.')
-        return values
+    _convert_price = validator('price', allow_reuse=True)(convert_price_to_float)
+    _forbid_null = validator('*', pre=True, allow_reuse=True)(field_cannot_be_null)
 
 
 class DishDB(BaseModel):

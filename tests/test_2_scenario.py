@@ -1,9 +1,7 @@
 from http import HTTPStatus
 
+from conftest import DISHES_URL, MENU_OBJ_URL, MENUS_URL, SUBMENU_OBJ_URL, SUBMENUS_URL
 from httpx import AsyncClient
-
-from conftest import (DISHES_URL, MENU_OBJ_URL, MENUS_URL, SUBMENU_OBJ_URL,
-                      SUBMENUS_URL)
 
 
 async def test_menu_get_count_dishes_and_submenus(

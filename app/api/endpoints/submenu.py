@@ -5,8 +5,12 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_async_session
-from app.schemas.submenu import (SubmenuCreate, SubmenuDB, SubmenuUpdate,
-                                 SubmenuWithCountDB)
+from app.schemas.submenu import (
+    SubmenuCreate,
+    SubmenuDB,
+    SubmenuUpdate,
+    SubmenuWithCountDB,
+)
 from app.services import submenu_service
 
 router = APIRouter()

@@ -1,11 +1,15 @@
 from http import HTTPStatus
 
 import pytest
+from conftest import (
+    SUBMENU_OBJ_URL,
+    SUBMENUS_URL,
+    UNEXISTING_UUID,
+    Submenu,
+    TestingSessionLocal,
+)
 from httpx import AsyncClient
 from sqlalchemy import func, select
-
-from conftest import (SUBMENU_OBJ_URL, SUBMENUS_URL, UNEXISTING_UUID, Submenu,
-                      TestingSessionLocal)
 
 
 async def test_submenu_get_empty_list(client: AsyncClient, menu):

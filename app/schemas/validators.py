@@ -1,0 +1,12 @@
+def convert_price_to_float(value: str) -> float:
+    price = float(value)
+    if price < 0:
+        raise ValueError('price не может иметь отрицательное значение')
+    return price
+
+
+def field_cannot_be_null(value):
+    """Валидация на недопустимость передачи полю значения null."""
+    if value is None:
+        raise ValueError('Значение поля не может быть null.')
+    return value

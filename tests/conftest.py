@@ -80,7 +80,7 @@ async def clear_db(init_db):
 
 @pytest.fixture(scope='session')
 async def client():
-    async with AsyncClient(app=app, base_url="http://test") as client:
+    async with AsyncClient(app=app, base_url='http://test') as client:
         yield client
 
 

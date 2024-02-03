@@ -17,11 +17,11 @@ class DishService:
         session: AsyncSession
     ):
         """Получить список всех блюд."""
-        dish_list_cache = await cache.get(f"{LIST_PREFIX}:{menu_id}:{submenu_id}")
+        dish_list_cache = await cache.get(f'{LIST_PREFIX}:{menu_id}:{submenu_id}')
         if dish_list_cache is not None:
             return dish_list_cache
-        dish_list = await dish_crud.get_multi(menu_id, submenu_id, session)
-        await cache.set(f"{LIST_PREFIX}:{menu_id}:{submenu_id}", dish_list)
+        dish_list = await dish_crud.get_multi_filtered(menu_id, submenu_id, session)
+        await cache.set(f'{LIST_PREFIX}:{menu_id}:{submenu_id}', dish_list)
         return dish_list
 
     async def create(
@@ -32,14 +32,14 @@ class DishService:
         session: AsyncSession
     ):
         await check_submenu_url_exists(menu_id, submenu_id, session)
-        new_dish = await dish_crud.create(submenu_id, dish, session)
+        new_dish = await dish_crud.create(dish, session, submenu_id=submenu_id)
         await cache.invalidate(
             keys=[
-                f"{LIST_PREFIX}",
-                f"{LIST_PREFIX}:{menu_id}",
-                f"{LIST_PREFIX}:{menu_id}:{submenu_id}",
-                f"{OBJ_PREFIX}:{menu_id}",
-                f"{OBJ_PREFIX}:{menu_id}:{submenu_id}"
+                f'{LIST_PREFIX}',
+                f'{LIST_PREFIX}:{menu_id}',
+                f'{LIST_PREFIX}:{menu_id}:{submenu_id}',
+                f'{OBJ_PREFIX}:{menu_id}',
+                f'{OBJ_PREFIX}:{menu_id}:{submenu_id}'
             ]
         )
         return new_dish
@@ -51,11 +51,11 @@ class DishService:
         dish_id: uuid.UUID,
         session: AsyncSession
     ):
-        dish_cache = await cache.get(f"{OBJ_PREFIX}:{menu_id}:{submenu_id}:{dish_id}")
+        dish_cache = await cache.get(f'{OBJ_PREFIX}:{menu_id}:{submenu_id}:{dish_id}')
         if dish_cache is not None:
             return dish_cache
-        dish = await dish_crud.get_or_404(menu_id, submenu_id, dish_id, session)
-        await cache.set(f"{OBJ_PREFIX}:{menu_id}:{submenu_id}:{dish_id}", dish)
+        dish = await dish_crud.get_filtered_or_404(menu_id, submenu_id, dish_id, session)
+        await cache.set(f'{OBJ_PREFIX}:{menu_id}:{submenu_id}:{dish_id}', dish)
         return dish
 
     async def update(
@@ -66,12 +66,12 @@ class DishService:
         obj_in: DishUpdate,
         session: AsyncSession
     ):
-        dish = await dish_crud.get_or_404(menu_id, submenu_id, dish_id, session)
+        dish = await dish_crud.get_filtered_or_404(menu_id, submenu_id, dish_id, session)
         updated_dish = await dish_crud.update(dish, obj_in, session)
         await cache.invalidate(
             keys=[
-                f"{LIST_PREFIX}:{menu_id}:{submenu_id}",
-                f"{OBJ_PREFIX}:{menu_id}:{submenu_id}:{dish_id}"
+                f'{LIST_PREFIX}:{menu_id}:{submenu_id}',
+                f'{OBJ_PREFIX}:{menu_id}:{submenu_id}:{dish_id}'
             ]
         )
         return updated_dish
@@ -83,16 +83,16 @@ class DishService:
         dish_id: uuid.UUID,
         session: AsyncSession
     ):
-        dish = await dish_crud.get_or_404(menu_id, submenu_id, dish_id, session)
+        dish = await dish_crud.get_filtered_or_404(menu_id, submenu_id, dish_id, session)
         deleted_dish = await dish_crud.remove(dish, session)
         await cache.invalidate(
             keys=[
-                f"{LIST_PREFIX}",
-                f"{LIST_PREFIX}:{menu_id}",
-                f"{LIST_PREFIX}:{menu_id}:{submenu_id}",
-                f"{OBJ_PREFIX}:{menu_id}",
-                f"{OBJ_PREFIX}:{menu_id}:{submenu_id}",
-                f"{OBJ_PREFIX}:{menu_id}:{submenu_id}:{dish_id}",
+                f'{LIST_PREFIX}',
+                f'{LIST_PREFIX}:{menu_id}',
+                f'{LIST_PREFIX}:{menu_id}:{submenu_id}',
+                f'{OBJ_PREFIX}:{menu_id}',
+                f'{OBJ_PREFIX}:{menu_id}:{submenu_id}',
+                f'{OBJ_PREFIX}:{menu_id}:{submenu_id}:{dish_id}',
             ]
         )
         return deleted_dish

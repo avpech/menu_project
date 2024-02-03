@@ -1,9 +1,9 @@
 import uuid
-from typing import Optional
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, validator
 
 from app.core.constants import MENU_DESCR_MAX_LEN, MENU_TITLE_MAX_LEN
+from app.schemas.validators import field_cannot_be_null
 
 
 class MenuBase(BaseModel):
@@ -19,20 +19,10 @@ class MenuCreate(MenuBase):
 
 class MenuUpdate(MenuBase):
     """Схема для изменения меню."""
-    title: Optional[str] = Field(None, max_length=MENU_TITLE_MAX_LEN)
-    description: Optional[str] = Field(None, max_length=MENU_DESCR_MAX_LEN)
+    title: str | None = Field(None, max_length=MENU_TITLE_MAX_LEN)
+    description: str | None = Field(None, max_length=MENU_DESCR_MAX_LEN)
 
-    @model_validator(mode='before')
-    def field_cannot_be_null(
-        cls,
-        values: dict[str, Optional[str]]
-    ) -> dict[str, Optional[str]]:
-        """Валидация на недопустимость передачи полю значения null."""
-
-        for field in ('title', 'description'):
-            if field in values and values[field] is None:
-                raise ValueError(f'Значение поля {field} не может быть null.')
-        return values
+    _forbid_null = validator('*', pre=True, allow_reuse=True)(field_cannot_be_null)
 
 
 class MenuDB(BaseModel):

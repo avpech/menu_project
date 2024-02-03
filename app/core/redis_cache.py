@@ -1,11 +1,12 @@
-import redis.asyncio as redis
-from redis.asyncio.client import Redis
 import json
-from fastapi.encoders import jsonable_encoder
-from typing import Optional
+from typing import Any
 
-LIST_PREFIX = "list"
-OBJ_PREFIX = "obj"
+import redis.asyncio as redis
+from fastapi.encoders import jsonable_encoder
+from redis.asyncio.client import Redis
+
+LIST_PREFIX = 'list'
+OBJ_PREFIX = 'obj'
 
 
 class RedisCache:
@@ -26,12 +27,12 @@ class RedisCache:
             return None
         return json.loads(value)
 
-    async def invalidate(self, keys: Optional[list[str]] = None, pattern: Optional[str] = None):
+    async def invalidate(self, keys: list[str] | None = None, pattern: str | None = None):
         keys_to_delete = []
         if keys is not None:
             keys_to_delete.extend(keys)
         if pattern is not None:
-            cur = b"0"
+            cur: Any = b'0'
             while cur:
                 cur, pattern_keys = await self.client.scan(cur, match=pattern)
             keys_to_delete.extend(pattern_keys)

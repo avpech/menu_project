@@ -1,6 +1,5 @@
 import uuid
 from http import HTTPStatus
-from typing import Optional
 
 from fastapi import HTTPException
 from sqlalchemy import select
@@ -16,7 +15,7 @@ class CRUDDish(
 ):
     """Класс CRUD-операций для модели Dish."""
 
-    async def get_multi(
+    async def get_multi_filtered(
         self,
         menu_id: uuid.UUID,
         submenu_id: uuid.UUID,
@@ -30,27 +29,13 @@ class CRUDDish(
         )
         return db_objs.scalars().all()
 
-    async def create(
-        self,
-        submenu_id: uuid.UUID,
-        obj_in: DishCreate,
-        session: AsyncSession
-    ) -> Dish:
-        """Создание объекта."""
-        obj_in_data = obj_in.model_dump()
-        db_obj = Dish(**obj_in_data, submenu_id=submenu_id)
-        session.add(db_obj)
-        await session.commit()
-        await session.refresh(db_obj)
-        return db_obj
-
-    async def get(
+    async def get_filtered(
         self,
         menu_id: uuid.UUID,
         submenu_id: uuid.UUID,
         obj_id: uuid.UUID,
         session: AsyncSession,
-    ) -> Optional[Dish]:
+    ) -> Dish | None:
         """Получение объекта по id."""
         dish = await session.execute(
             select(Dish)
@@ -63,19 +48,19 @@ class CRUDDish(
         )
         return dish.scalars().first()
 
-    async def get_or_404(
+    async def get_filtered_or_404(
         self,
         menu_id: uuid.UUID,
         submenu_id: uuid.UUID,
         obj_id: uuid.UUID,
         session: AsyncSession,
-    ) -> Optional[Dish]:
+    ) -> Dish:
         """
         Получение объекта по id.
 
         При отсутствии объекта вызывает HTTPException со статусом 404.
         """
-        obj = await self.get(menu_id, submenu_id, obj_id, session)
+        obj = await self.get_filtered(menu_id, submenu_id, obj_id, session)
         if obj is None:
             raise HTTPException(
                 status_code=HTTPStatus.NOT_FOUND,

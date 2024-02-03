@@ -1,6 +1,6 @@
 import uuid
 from http import HTTPStatus
-from typing import Generic, Optional, Type, TypeVar
+from typing import Generic, TypeVar
 
 from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
@@ -20,7 +20,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     def __init__(
         self,
-        model: Type[ModelType]
+        model: type[ModelType]
     ) -> None:
         self.model = model
 
@@ -28,7 +28,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self,
         obj_id: uuid.UUID,
         session: AsyncSession,
-    ) -> Optional[ModelType]:
+    ) -> ModelType | None:
         """Получение объекта по id."""
         return await session.get(self.model, obj_id)
 
@@ -36,7 +36,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self,
         obj_id: uuid.UUID,
         session: AsyncSession,
-    ) -> Optional[ModelType]:
+    ) -> ModelType:
         """
         Получение объекта по id.
 
@@ -61,11 +61,15 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     async def create(
         self,
         obj_in: CreateSchemaType,
-        session: AsyncSession
+        session: AsyncSession,
+        **kwargs
     ) -> ModelType:
-        """Создание объекта."""
+        """Создание объекта.
+
+        В `**kwargs` передаются поля, отсутствующие в Pydantic-схеме.
+        """
         obj_in_data = obj_in.model_dump()
-        db_obj = self.model(**obj_in_data)
+        db_obj = self.model(**obj_in_data, **kwargs)
         session.add(db_obj)
         await session.commit()
         await session.refresh(db_obj)

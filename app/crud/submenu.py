@@ -1,6 +1,5 @@
 import uuid
 from http import HTTPStatus
-from typing import Optional
 
 from fastapi import HTTPException
 from sqlalchemy import func, select
@@ -16,7 +15,7 @@ class CRUDSubmenu(
 ):
     """Класс CRUD-операций для модели Submenu."""
 
-    async def get_multi(
+    async def get_multi_filtered_annotated(
         self,
         menu_id: uuid.UUID,
         session: AsyncSession
@@ -35,26 +34,12 @@ class CRUDSubmenu(
             submenus.append(submenu)
         return submenus
 
-    async def create(
-        self,
-        menu_id: uuid.UUID,
-        obj_in: SubmenuCreate,
-        session: AsyncSession
-    ) -> Submenu:
-        """Создание объекта."""
-        obj_in_data = obj_in.model_dump()
-        db_obj = Submenu(**obj_in_data, menu_id=menu_id)
-        session.add(db_obj)
-        await session.commit()
-        await session.refresh(db_obj)
-        return db_obj
-
-    async def get(
+    async def get_filtered_annotated(
         self,
         menu_id: uuid.UUID,
         obj_id: uuid.UUID,
         session: AsyncSession,
-    ) -> Optional[Submenu]:
+    ) -> Submenu | None:
         """Получение объекта по id."""
         db_obj = await session.execute(
             select(Submenu, func.count(Dish.id))
@@ -69,18 +54,18 @@ class CRUDSubmenu(
         submenu.dishes_count = dishes_count
         return submenu
 
-    async def get_or_404(
+    async def get_filtered_annotated_or_404(
         self,
         menu_id: uuid.UUID,
         obj_id: uuid.UUID,
         session: AsyncSession,
-    ) -> Optional[Submenu]:
+    ) -> Submenu:
         """
         Получение объекта по id.
 
         При отсутствии объекта вызывает HTTPException со статусом 404.
         """
-        obj = await self.get(menu_id, obj_id, session)
+        obj = await self.get_filtered_annotated(menu_id, obj_id, session)
         if obj is None:
             raise HTTPException(
                 status_code=HTTPStatus.NOT_FOUND,
