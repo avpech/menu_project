@@ -24,6 +24,18 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     ) -> None:
         self.model = model
 
+    def _exists_or_404(
+        self,
+        obj: ModelType | None,
+        detail: str = 'not found'
+    ) -> ModelType:
+        if obj is None:
+            raise HTTPException(
+                status_code=HTTPStatus.NOT_FOUND,
+                detail=detail
+            )
+        return obj
+
     async def get(
         self,
         obj_id: uuid.UUID,
@@ -43,11 +55,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         При отсутствии объекта вызывает HTTPException со статусом 404.
         """
         obj = await self.get(obj_id, session)
-        if obj is None:
-            raise HTTPException(
-                status_code=HTTPStatus.NOT_FOUND,
-                detail=f'{self.model.__tablename__} not found'
-            )
+        obj = self._exists_or_404(obj)
         return obj
 
     async def get_multi(

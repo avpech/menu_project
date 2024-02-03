@@ -1,7 +1,5 @@
 import uuid
-from http import HTTPStatus
 
-from fastapi import HTTPException
 from sqlalchemy import distinct, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -68,11 +66,7 @@ class CRUDMenu(
         При отсутствии объекта вызывает HTTPException со статусом 404.
         """
         obj = await self.get_annotated(obj_id, session)
-        if obj is None:
-            raise HTTPException(
-                status_code=HTTPStatus.NOT_FOUND,
-                detail='menu not found'
-            )
+        obj = self._exists_or_404(obj, detail='menu not found')
         return obj
 
 

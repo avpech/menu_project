@@ -1,7 +1,5 @@
 import uuid
-from http import HTTPStatus
 
-from fastapi import HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -66,11 +64,35 @@ class CRUDSubmenu(
         При отсутствии объекта вызывает HTTPException со статусом 404.
         """
         obj = await self.get_filtered_annotated(menu_id, obj_id, session)
-        if obj is None:
-            raise HTTPException(
-                status_code=HTTPStatus.NOT_FOUND,
-                detail='submenu not found'
-            )
+        obj = self._exists_or_404(obj, detail='submenu not found')
+        return obj
+
+    async def get_filtered(
+        self,
+        menu_id: uuid.UUID,
+        obj_id: uuid.UUID,
+        session: AsyncSession,
+    ) -> Submenu | None:
+        """Получение объекта по id."""
+        submenu = await session.execute(
+            select(Submenu)
+            .where(Submenu.id == obj_id, Submenu.menu_id == menu_id)
+        )
+        return submenu.scalars().first()
+
+    async def get_filtered_or_404(
+        self,
+        menu_id: uuid.UUID,
+        obj_id: uuid.UUID,
+        session: AsyncSession,
+    ) -> Submenu:
+        """
+        Получение объекта по id.
+
+        При отсутствии объекта вызывает HTTPException со статусом 404.
+        """
+        obj = await self.get_filtered(menu_id, obj_id, session)
+        obj = self._exists_or_404(obj, detail='submenu not found')
         return obj
 
 

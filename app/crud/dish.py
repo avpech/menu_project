@@ -1,7 +1,5 @@
 import uuid
-from http import HTTPStatus
 
-from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -61,11 +59,7 @@ class CRUDDish(
         При отсутствии объекта вызывает HTTPException со статусом 404.
         """
         obj = await self.get_filtered(menu_id, submenu_id, obj_id, session)
-        if obj is None:
-            raise HTTPException(
-                status_code=HTTPStatus.NOT_FOUND,
-                detail='dish not found'
-            )
+        obj = self._exists_or_404(obj, detail='dish not found')
         return obj
 
 

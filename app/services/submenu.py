@@ -59,7 +59,7 @@ class SubmenuService:
         obj_in: SubmenuUpdate,
         session: AsyncSession
     ):
-        submenu = await submenu_crud.get_filtered_annotated_or_404(menu_id, submenu_id, session)
+        submenu = await submenu_crud.get_filtered_or_404(menu_id, submenu_id, session)
         updated_submenu = await submenu_crud.update(submenu, obj_in, session)
         await cache.invalidate(
             keys=[
