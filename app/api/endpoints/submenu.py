@@ -20,7 +20,7 @@ router = APIRouter()
     '/{menu_id}/submenus',
     response_model=list[SubmenuWithCountDB]
 )
-async def get_all_submenu(
+async def get_all_submenus(
     menu_id: uuid.UUID,
     session: AsyncSession = Depends(get_async_session)
 ):

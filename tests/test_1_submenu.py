@@ -1,19 +1,25 @@
 from http import HTTPStatus
 
 import pytest
-from conftest import (
-    SUBMENU_OBJ_URL,
-    SUBMENUS_URL,
-    UNEXISTING_UUID,
-    Submenu,
-    TestingSessionLocal,
-)
+from conftest import Submenu, TestingSessionLocal
 from httpx import AsyncClient
 from sqlalchemy import func, select
 
+from tests.constants import (
+    CREATE_SUBMENU,
+    DELETE_SUBMENU,
+    GET_ALL_SUBMENUS,
+    GET_SUBMENU,
+    SUBMENU_OBJ_URL,
+    SUBMENUS_URL,
+    UNEXISTING_UUID,
+    UPDATE_SUBMENU,
+)
+from tests.utils import reverse
+
 
 async def test_submenu_get_empty_list(client: AsyncClient, menu):
-    url = SUBMENUS_URL.format(menu_id=menu.id)
+    url = reverse(GET_ALL_SUBMENUS, menu_id=menu.id)
     response = await client.get(url)
     assert response.status_code == HTTPStatus.OK, (
         f'GET-запрос к `{SUBMENUS_URL}` должен возвращать '
@@ -26,7 +32,7 @@ async def test_submenu_get_empty_list(client: AsyncClient, menu):
 
 
 async def test_submenu_post_status(client: AsyncClient, menu):
-    url = SUBMENUS_URL.format(menu_id=menu.id)
+    url = reverse(CREATE_SUBMENU, menu_id=menu.id)
     json = {
         'title': 'submenu_title',
         'description': 'submenu_description'
@@ -38,7 +44,7 @@ async def test_submenu_post_status(client: AsyncClient, menu):
 
 
 async def test_submenu_post_object_created(client: AsyncClient, menu):
-    url = SUBMENUS_URL.format(menu_id=menu.id)
+    url = reverse(CREATE_SUBMENU, menu_id=menu.id)
     json = {
         'title': 'submenu_title',
         'description': 'submenu_description'
@@ -59,7 +65,7 @@ async def test_submenu_post_object_created(client: AsyncClient, menu):
 
 @pytest.mark.parametrize('field', ['title', 'description'])
 async def test_submenu_post_data(client: AsyncClient, field, menu):
-    url = SUBMENUS_URL.format(menu_id=menu.id)
+    url = reverse(CREATE_SUBMENU, menu_id=menu.id)
     json = {
         'title': 'submenu_title',
         'description': 'submenu_description'
@@ -72,7 +78,7 @@ async def test_submenu_post_data(client: AsyncClient, field, menu):
 
 
 async def test_submenu_relation(client: AsyncClient, menu):
-    url = SUBMENUS_URL.format(menu_id=menu.id)
+    url = reverse(CREATE_SUBMENU, menu_id=menu.id)
     json = {
         'title': 'submenu_title',
         'description': 'submenu_description'
@@ -89,7 +95,7 @@ async def test_submenu_relation(client: AsyncClient, menu):
 async def test_submenu_post_invalid_title(
     client: AsyncClient, submenu_title, menu
 ):
-    url = SUBMENUS_URL.format(menu_id=menu.id)
+    url = reverse(CREATE_SUBMENU, menu_id=menu.id)
     json = {
         'title': submenu_title,
         'description': 'submenu_description'
@@ -105,7 +111,7 @@ async def test_submenu_post_invalid_title(
 async def test_submenu_post_invalid_description(
     client: AsyncClient, submenu_description, menu
 ):
-    url = SUBMENUS_URL.format(menu_id=menu.id)
+    url = reverse(CREATE_SUBMENU, menu_id=menu.id)
     json = {
         'title': 'title',
         'description': submenu_description
@@ -119,7 +125,7 @@ async def test_submenu_post_invalid_description(
 
 @pytest.mark.parametrize('field', ['title', 'description'])
 async def test_submenu_post_missing_field(client: AsyncClient, field, menu):
-    url = SUBMENUS_URL.format(menu_id=menu.id)
+    url = reverse(CREATE_SUBMENU, menu_id=menu.id)
     json = {
         'title': 'submenu_title',
         'description': 'submenu_description'
@@ -133,7 +139,7 @@ async def test_submenu_post_missing_field(client: AsyncClient, field, menu):
 
 
 async def test_submenu_get_list(client: AsyncClient, menu, submenu):
-    url = SUBMENUS_URL.format(menu_id=menu.id)
+    url = reverse(GET_ALL_SUBMENUS, menu_id=menu.id)
     response = await client.get(url)
     assert response.status_code == HTTPStatus.OK, (
         f'GET-запрос к `{SUBMENUS_URL}` должен возвращать статус 200 '
@@ -146,7 +152,7 @@ async def test_submenu_get_list(client: AsyncClient, menu, submenu):
 
 
 async def test_submenu_get_status(client: AsyncClient, menu, submenu):
-    url = SUBMENU_OBJ_URL.format(menu_id=menu.id, submenu_id=submenu.id)
+    url = reverse(GET_SUBMENU, menu_id=menu.id, submenu_id=submenu.id)
     response = await client.get(url)
     assert response.status_code == HTTPStatus.OK, (
         f'GET-запрос к `{SUBMENU_OBJ_URL}` должен возвращать статус 200, '
@@ -155,7 +161,7 @@ async def test_submenu_get_status(client: AsyncClient, menu, submenu):
 
 
 async def test_submenu_get_404(client: AsyncClient, menu):
-    url = SUBMENU_OBJ_URL.format(menu_id=menu.id, submenu_id=UNEXISTING_UUID)
+    url = reverse(GET_SUBMENU, menu_id=menu.id, submenu_id=UNEXISTING_UUID)
     response = await client.get(url)
     assert response.status_code == HTTPStatus.NOT_FOUND, (
         f'GET-запрос к `{SUBMENU_OBJ_URL}` должен возвращать статус 404, '
@@ -164,9 +170,7 @@ async def test_submenu_get_404(client: AsyncClient, menu):
 
 
 async def test_submenu_get_if_menu_404(client: AsyncClient, menu, submenu):
-    url = SUBMENU_OBJ_URL.format(
-        menu_id=UNEXISTING_UUID, submenu_id=submenu.id
-    )
+    url = reverse(GET_SUBMENU, menu_id=UNEXISTING_UUID, submenu_id=submenu.id)
     response = await client.get(url)
     assert response.status_code == HTTPStatus.NOT_FOUND, (
         f'GET-запрос к `{SUBMENU_OBJ_URL}` должен возвращать статус 404, '
@@ -176,7 +180,7 @@ async def test_submenu_get_if_menu_404(client: AsyncClient, menu, submenu):
 
 @pytest.mark.parametrize('field', ['title', 'description'])
 async def test_submenu_get_data(client: AsyncClient, menu, submenu, field):
-    url = SUBMENU_OBJ_URL.format(menu_id=menu.id, submenu_id=submenu.id)
+    url = reverse(GET_SUBMENU, menu_id=menu.id, submenu_id=submenu.id)
     response = await client.get(url)
     assert response.json().get(field) == getattr(submenu, field, None), (
         f'GET-запрос к `{SUBMENU_OBJ_URL}` '
@@ -185,7 +189,7 @@ async def test_submenu_get_data(client: AsyncClient, menu, submenu, field):
 
 
 async def test_submenu_get_menu_id(client: AsyncClient, menu, submenu):
-    url = SUBMENU_OBJ_URL.format(menu_id=menu.id, submenu_id=submenu.id)
+    url = reverse(GET_SUBMENU, menu_id=menu.id, submenu_id=submenu.id)
     response = await client.get(url)
     assert response.json().get('menu_id') == str(menu.id), (
         f'GET-запрос к `{SUBMENU_OBJ_URL}` должен возвращать '
@@ -195,7 +199,7 @@ async def test_submenu_get_menu_id(client: AsyncClient, menu, submenu):
 
 
 async def test_submenu_patch_status(client: AsyncClient, menu, submenu):
-    url = SUBMENU_OBJ_URL.format(menu_id=menu.id, submenu_id=submenu.id)
+    url = reverse(UPDATE_SUBMENU, menu_id=menu.id, submenu_id=submenu.id)
     json = {
         'title': 'submenu_title_changed',
         'description': 'submenu_description_changed'
@@ -208,7 +212,7 @@ async def test_submenu_patch_status(client: AsyncClient, menu, submenu):
 
 
 async def test_submenu_patch_404(client: AsyncClient, menu):
-    url = SUBMENU_OBJ_URL.format(menu_id=menu.id, submenu_id=UNEXISTING_UUID)
+    url = reverse(UPDATE_SUBMENU, menu_id=menu.id, submenu_id=UNEXISTING_UUID)
     json = {
         'title': 'menu_title_changed',
         'description': 'menu_description_changed'
@@ -221,9 +225,7 @@ async def test_submenu_patch_404(client: AsyncClient, menu):
 
 
 async def test_submenu_patch_if_menu_404(client: AsyncClient, menu, submenu):
-    url = SUBMENU_OBJ_URL.format(
-        menu_id=UNEXISTING_UUID, submenu_id=submenu.id
-    )
+    url = reverse(UPDATE_SUBMENU, menu_id=UNEXISTING_UUID, submenu_id=submenu.id)
     json = {
         'title': 'menu_title_changed',
         'description': 'menu_description_changed'
@@ -237,7 +239,7 @@ async def test_submenu_patch_if_menu_404(client: AsyncClient, menu, submenu):
 
 @pytest.mark.parametrize('field', ['title', 'description'])
 async def test_submenu_patch_data(client: AsyncClient, menu, submenu, field):
-    url = SUBMENU_OBJ_URL.format(menu_id=menu.id, submenu_id=submenu.id)
+    url = reverse(UPDATE_SUBMENU, menu_id=menu.id, submenu_id=submenu.id)
     json = {
         'title': 'submenu_title_changed',
         'description': 'submenu_description_changed'
@@ -253,7 +255,7 @@ async def test_submenu_patch_data(client: AsyncClient, menu, submenu, field):
 async def test_submenu_patch_invalid_title(
     client: AsyncClient, submenu_title, menu, submenu
 ):
-    url = SUBMENU_OBJ_URL.format(menu_id=menu.id, submenu_id=submenu.id)
+    url = reverse(UPDATE_SUBMENU, menu_id=menu.id, submenu_id=submenu.id)
     json = {
         'title': submenu_title,
         'description': 'menu_description_changed'
@@ -269,7 +271,7 @@ async def test_submenu_patch_invalid_title(
 async def test_submenu_patch_invalid_description(
     client: AsyncClient, submenu_description, menu, submenu
 ):
-    url = SUBMENU_OBJ_URL.format(menu_id=menu.id, submenu_id=submenu.id)
+    url = reverse(UPDATE_SUBMENU, menu_id=menu.id, submenu_id=submenu.id)
     json = {
         'title': 'menu_title_changed',
         'description': submenu_description
@@ -282,7 +284,7 @@ async def test_submenu_patch_invalid_description(
 
 
 async def test_submenu_delete_status(client: AsyncClient, menu, submenu):
-    url = SUBMENU_OBJ_URL.format(menu_id=menu.id, submenu_id=submenu.id)
+    url = reverse(DELETE_SUBMENU, menu_id=menu.id, submenu_id=submenu.id)
     response = await client.delete(url)
     assert response.status_code == HTTPStatus.OK, (
         f'DELETE-запрос к `{SUBMENU_OBJ_URL}` должен возвращать статус 200, '
@@ -291,7 +293,7 @@ async def test_submenu_delete_status(client: AsyncClient, menu, submenu):
 
 
 async def test_submenu_delete_404(client: AsyncClient, menu):
-    url = SUBMENU_OBJ_URL.format(menu_id=menu.id, submenu_id=UNEXISTING_UUID)
+    url = reverse(DELETE_SUBMENU, menu_id=menu.id, submenu_id=UNEXISTING_UUID)
     response = await client.delete(url)
     assert response.status_code == HTTPStatus.NOT_FOUND, (
         f'DELETE-запрос к `{SUBMENU_OBJ_URL}` должен возвращать статус 404, '
@@ -300,9 +302,7 @@ async def test_submenu_delete_404(client: AsyncClient, menu):
 
 
 async def test_submenu_delete_if_menu_404(client: AsyncClient, menu, submenu):
-    url = SUBMENU_OBJ_URL.format(
-        menu_id=UNEXISTING_UUID, submenu_id=submenu.id
-    )
+    url = reverse(DELETE_SUBMENU, menu_id=UNEXISTING_UUID, submenu_id=submenu.id)
     response = await client.delete(url)
     assert response.status_code == HTTPStatus.NOT_FOUND, (
         f'DELETE-запрос к `{SUBMENU_OBJ_URL}` должен возвращать статус 404, '
@@ -313,7 +313,7 @@ async def test_submenu_delete_if_menu_404(client: AsyncClient, menu, submenu):
 async def test_submenu_delete_object_deleted(
     client: AsyncClient, menu, submenu
 ):
-    url = SUBMENU_OBJ_URL.format(menu_id=menu.id, submenu_id=submenu.id)
+    url = reverse(DELETE_SUBMENU, menu_id=menu.id, submenu_id=submenu.id)
     await client.delete(url)
     async with TestingSessionLocal() as session:
         submenu_exists = await session.scalar(

@@ -12,7 +12,7 @@ router = APIRouter()
 
 
 @router.get('/', response_model=list[MenuWithCountDB])
-async def get_all_menu(
+async def get_all_menus(
     session: AsyncSession = Depends(get_async_session)
 ):
     """Получить список всех меню."""

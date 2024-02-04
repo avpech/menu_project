@@ -2,8 +2,10 @@ import asyncio
 import os
 
 import pytest
+import redis.asyncio as redis
 from dotenv import load_dotenv
 from httpx import AsyncClient
+from redis.asyncio.client import Redis
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import text
@@ -14,13 +16,6 @@ from app.models import Base, Dish, Menu, Submenu
 
 load_dotenv()
 
-UNEXISTING_UUID = '00000000-0000-0000-0000-000000000000'
-MENUS_URL = '/api/v1/menus/'
-MENU_OBJ_URL = '/api/v1/menus/{menu_id}'
-SUBMENUS_URL = '/api/v1/menus/{menu_id}/submenus'
-SUBMENU_OBJ_URL = '/api/v1/menus/{menu_id}/submenus/{submenu_id}'
-DISHES_URL = '/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes'
-DISH_OBJ_URL = '/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}'
 
 test_db_url = (
     f'postgresql+asyncpg://{os.environ["DB_USER"]}:'
@@ -49,6 +44,19 @@ def event_loop():
     loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop
     loop.close()
+
+
+@pytest.fixture(autouse=True, scope='session')
+async def redis_client():
+    client: Redis = redis.Redis()
+    await client.flushdb()
+    yield client
+    await client.aclose()
+
+
+@pytest.fixture(autouse=True, scope='function')
+async def clear_cache(redis_client):
+    await redis_client.flushdb()
 
 
 @pytest.fixture(autouse=True, scope='session')

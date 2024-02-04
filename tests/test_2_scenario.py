@@ -1,7 +1,19 @@
 from http import HTTPStatus
 
-from conftest import DISHES_URL, MENU_OBJ_URL, MENUS_URL, SUBMENU_OBJ_URL, SUBMENUS_URL
 from httpx import AsyncClient
+
+from tests.constants import (
+    DELETE_MENU,
+    DELETE_SUBMENU,
+    GET_ALL_DISHES,
+    GET_ALL_MENUS,
+    GET_ALL_SUBMENUS,
+    GET_MENU,
+    GET_SUBMENU,
+    MENU_OBJ_URL,
+    SUBMENU_OBJ_URL,
+)
+from tests.utils import reverse
 
 
 async def test_menu_get_count_dishes_and_submenus(
@@ -12,7 +24,7 @@ async def test_menu_get_count_dishes_and_submenus(
 
     В фикстурах меню, субменю и два блюда.
     """
-    url = MENU_OBJ_URL.format(menu_id=menu.id)
+    url = reverse(GET_MENU, menu_id=menu.id)
     response = await client.get(url)
     assert response.status_code == HTTPStatus.OK
     assert response.json().get('submenus_count') == 1, (
@@ -33,7 +45,7 @@ async def test_submenu_get_count_dishes(
 
     В фикстурах меню, субменю и два блюда.
     """
-    url = SUBMENU_OBJ_URL.format(menu_id=menu.id, submenu_id=submenu.id)
+    url = reverse(GET_SUBMENU, menu_id=menu.id, submenu_id=submenu.id)
     response = await client.get(url)
     assert response.status_code == HTTPStatus.OK
     assert response.json().get('dishes_count') == 2, (
@@ -50,12 +62,10 @@ async def test_submenus_list_after_delete_submenu(
 
     В фикстурах меню, субменю и два блюда.
     """
-    submenu_url = SUBMENU_OBJ_URL.format(
-        menu_id=menu.id, submenu_id=submenu.id
-    )
+    submenu_url = reverse(DELETE_SUBMENU, menu_id=menu.id, submenu_id=submenu.id)
     response = await client.delete(submenu_url)
     assert response.status_code == HTTPStatus.OK
-    submenu_list_url = SUBMENUS_URL.format(menu_id=menu.id)
+    submenu_list_url = reverse(GET_ALL_SUBMENUS, menu_id=menu.id)
     response = await client.get(submenu_list_url)
     assert response.json() == [], (
         f'Проверьте, что после DELETE-запроса к {SUBMENU_OBJ_URL} '
@@ -71,12 +81,10 @@ async def test_dishes_list_after_delete_submenu(
 
     В фикстурах меню, субменю и два блюда.
     """
-    submenu_url = SUBMENU_OBJ_URL.format(
-        menu_id=menu.id, submenu_id=submenu.id
-    )
+    submenu_url = reverse(DELETE_SUBMENU, menu_id=menu.id, submenu_id=submenu.id)
     response = await client.delete(submenu_url)
     assert response.status_code == HTTPStatus.OK
-    dishes_list_url = DISHES_URL.format(menu_id=menu.id, submenu_id=submenu.id)
+    dishes_list_url = reverse(GET_ALL_DISHES, menu_id=menu.id, submenu_id=submenu.id)
     response = await client.get(dishes_list_url)
     assert response.json() == [], (
         f'Проверьте, что после DELETE-запроса к {SUBMENU_OBJ_URL} '
@@ -93,12 +101,10 @@ async def test_menu_dishes_and_submenus_count_after_delete_submenu(
 
     В фикстурах меню, субменю и два блюда.
     """
-    submenu_url = SUBMENU_OBJ_URL.format(
-        menu_id=menu.id, submenu_id=submenu.id
-    )
+    submenu_url = reverse(DELETE_SUBMENU, menu_id=menu.id, submenu_id=submenu.id)
     response = await client.delete(submenu_url)
     assert response.status_code == HTTPStatus.OK
-    menu_url = MENU_OBJ_URL.format(menu_id=menu.id)
+    menu_url = reverse(GET_MENU, menu_id=menu.id)
     response = await client.get(menu_url)
     assert response.json().get('submenus_count') == 0, (
         f'Проверьте, что при GET-запросе к {MENU_OBJ_URL} значение '
@@ -114,10 +120,10 @@ async def test_menu_list_after_menu_delete(
     client: AsyncClient, menu, submenu, dish, dish_another
 ):
     """Проверка корректности удаления меню."""
-    menu_url = MENU_OBJ_URL.format(menu_id=menu.id)
+    menu_url = reverse(DELETE_MENU, menu_id=menu.id)
     response = await client.delete(menu_url)
     assert response.status_code == HTTPStatus.OK
-    menu_list_url = MENUS_URL
+    menu_list_url = reverse(GET_ALL_MENUS)
     response = await client.get(menu_list_url)
     assert response.json() == [], (
         f'Проверьте, что после DELETE-запроса к {MENU_OBJ_URL} '
