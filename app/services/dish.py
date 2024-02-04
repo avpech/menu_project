@@ -12,6 +12,7 @@ from app.services.validators import check_submenu_url_exists
 
 
 class DishService:
+    """Взаимодействие с блюдами."""
 
     async def get_list(
         self,
@@ -19,7 +20,7 @@ class DishService:
         submenu_id: uuid.UUID,
         session: AsyncSession
     ) -> Sequence[Dish | DishCacheDict]:
-        """Получить список всех блюд."""
+        """Получить список блюд."""
         dish_list_cache: list[DishCacheDict] | None = await cache.get(f'{LIST_PREFIX}:{menu_id}:{submenu_id}')
         if dish_list_cache is not None:
             return dish_list_cache
@@ -34,6 +35,7 @@ class DishService:
         dish: DishCreate,
         session: AsyncSession
     ) -> Dish:
+        """Создать блюдо."""
         await check_submenu_url_exists(menu_id, submenu_id, session)
         new_dish = await dish_crud.create(dish, session, submenu_id=submenu_id)
         await cache.invalidate(
@@ -54,6 +56,7 @@ class DishService:
         dish_id: uuid.UUID,
         session: AsyncSession
     ) -> Dish | DishCacheDict:
+        """Получить блюдо."""
         dish_cache: DishCacheDict | None = await cache.get(f'{OBJ_PREFIX}:{menu_id}:{submenu_id}:{dish_id}')
         if dish_cache is not None:
             return dish_cache
@@ -69,6 +72,7 @@ class DishService:
         obj_in: DishUpdate,
         session: AsyncSession
     ) -> Dish:
+        """Обновить блюдо."""
         dish = await dish_crud.get_filtered_or_404(menu_id, submenu_id, dish_id, session)
         updated_dish = await dish_crud.update(dish, obj_in, session)
         await cache.invalidate(
@@ -86,6 +90,7 @@ class DishService:
         dish_id: uuid.UUID,
         session: AsyncSession
     ) -> Dish:
+        """Удалить блюдо."""
         dish = await dish_crud.get_filtered_or_404(menu_id, submenu_id, dish_id, session)
         deleted_dish = await dish_crud.remove(dish, session)
         await cache.invalidate(

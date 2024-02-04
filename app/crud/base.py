@@ -30,6 +30,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         obj: AnyType | None,
         detail: str = 'not found'
     ) -> AnyType:
+        """
+        Проверка существования объекта.
+
+        Вызывает HTTPException со статусом 404, если объект `None`.
+        """
         if obj is None:
             raise HTTPException(
                 status_code=HTTPStatus.NOT_FOUND,
@@ -73,7 +78,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         session: AsyncSession,
         **kwargs
     ) -> ModelType:
-        """Создание объекта.
+        """
+        Создание объекта.
 
         В `**kwargs` передаются поля, отсутствующие в Pydantic-схеме.
         """

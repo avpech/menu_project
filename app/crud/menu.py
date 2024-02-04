@@ -18,7 +18,7 @@ class CRUDMenu(
         self,
         session: AsyncSession
     ) -> list[MenuAnnotatedDict]:
-        """Получение всех объектов."""
+        """Получение всех объектов с аннотациями."""
         db_objs = await session.execute(
             select(Menu, func.count(distinct(Submenu.id)), func.count(Dish.id))
             .select_from(Menu)
@@ -41,7 +41,7 @@ class CRUDMenu(
         obj_id: uuid.UUID,
         session: AsyncSession,
     ) -> MenuAnnotatedDict | None:
-        """Получение объекта по id."""
+        """Получение объекта с аннотациями по id."""
         db_obj = await session.execute(
             select(Menu, func.count(distinct(Submenu.id)), func.count(Dish.id))
             .select_from(Menu)
@@ -68,7 +68,7 @@ class CRUDMenu(
         session: AsyncSession,
     ) -> MenuAnnotatedDict:
         """
-        Получение объекта по id.
+        Получение объекта с аннотациями по id.
 
         При отсутствии объекта вызывает HTTPException со статусом 404.
         """

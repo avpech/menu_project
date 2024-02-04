@@ -12,11 +12,13 @@ from app.services.validators import check_menu_title_duplicate
 
 
 class MenuService:
+    """Взаимодействие с меню."""
 
     async def get_list(
         self,
         session: AsyncSession
     ) -> Sequence[MenuAnnotatedDict | MenuCachedDict]:
+        """Получить список меню."""
         menu_list_cache: list[MenuCachedDict] | None = await cache.get(f'{LIST_PREFIX}')
         if menu_list_cache is not None:
             return menu_list_cache
@@ -29,6 +31,7 @@ class MenuService:
         menu: MenuCreate,
         session: AsyncSession
     ) -> Menu:
+        """Создать меню."""
         await check_menu_title_duplicate(menu.title, session)
         new_menu = await menu_crud.create(menu, session)
         await cache.invalidate(keys=[f'{LIST_PREFIX}'])
@@ -39,6 +42,7 @@ class MenuService:
         menu_id: uuid.UUID,
         session: AsyncSession
     ) -> MenuAnnotatedDict | MenuCachedDict:
+        """Получить меню."""
         menu_cache: MenuCachedDict | None = await cache.get(f'{OBJ_PREFIX}:{menu_id}')
         if menu_cache is not None:
             return menu_cache
@@ -52,6 +56,7 @@ class MenuService:
         obj_in: MenuUpdate,
         session: AsyncSession
     ) -> Menu:
+        """Обновить меню."""
         menu = await menu_crud.get_or_404(menu_id, session)
         if obj_in.title is not None and obj_in.title != menu.title:
             await check_menu_title_duplicate(obj_in.title, session)
@@ -69,6 +74,7 @@ class MenuService:
         menu_id: uuid.UUID,
         session: AsyncSession
     ) -> Menu:
+        """Удалить меню."""
         menu = await menu_crud.get_or_404(menu_id, session)
         deleted_menu = await menu_crud.remove(menu, session)
         await cache.invalidate(

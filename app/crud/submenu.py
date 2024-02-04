@@ -19,7 +19,7 @@ class CRUDSubmenu(
         menu_id: uuid.UUID,
         session: AsyncSession
     ) -> list[SubmenuAnnotatedDict]:
-        """Получение всех объектов."""
+        """Получение списка отфильтрованных по `menu_id` объектов с аннотациями."""
         db_objs = await session.execute(
             select(Submenu, func.count(Dish.id))
             .join(Dish, isouter=True)
@@ -42,7 +42,10 @@ class CRUDSubmenu(
         obj_id: uuid.UUID,
         session: AsyncSession,
     ) -> SubmenuAnnotatedDict | None:
-        """Получение объекта по id."""
+        """
+        Получение объекта с аннотациями по id,
+        если он связан с соответствующим меню.
+        """
         db_obj = await session.execute(
             select(Submenu, func.count(Dish.id))
             .join(Dish, isouter=True)
@@ -68,7 +71,8 @@ class CRUDSubmenu(
         session: AsyncSession,
     ) -> SubmenuAnnotatedDict:
         """
-        Получение объекта по id.
+        Получение объекта с аннотациями по id,
+        если он связан с соответствующим меню.
 
         При отсутствии объекта вызывает HTTPException со статусом 404.
         """
@@ -82,7 +86,7 @@ class CRUDSubmenu(
         obj_id: uuid.UUID,
         session: AsyncSession,
     ) -> Submenu | None:
-        """Получение объекта по id."""
+        """Получение объекта по id, если он связан с соответствующим меню."""
         submenu = await session.execute(
             select(Submenu)
             .where(Submenu.id == obj_id, Submenu.menu_id == menu_id)
@@ -96,7 +100,7 @@ class CRUDSubmenu(
         session: AsyncSession,
     ) -> Submenu:
         """
-        Получение объекта по id.
+        Получение объекта по id, если он связан с соответствующим меню.
 
         При отсутствии объекта вызывает HTTPException со статусом 404.
         """

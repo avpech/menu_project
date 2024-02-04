@@ -12,12 +12,14 @@ from app.services.validators import check_menu_url_exists
 
 
 class SubmenuService:
+    """Взаимодействие с субменю."""
 
     async def get_list(
         self,
         menu_id: uuid.UUID,
         session: AsyncSession
     ) -> Sequence[SubmenuAnnotatedDict | SubmenuCachedDict]:
+        """Получить список субменю."""
         submenu_list_cache: list[SubmenuCachedDict] | None = await cache.get(f'{LIST_PREFIX}:{menu_id}')
         if submenu_list_cache is not None:
             return submenu_list_cache
@@ -31,6 +33,7 @@ class SubmenuService:
         submenu: SubmenuCreate,
         session: AsyncSession
     ) -> Submenu:
+        """Создать субменю."""
         await check_menu_url_exists(menu_id, session)
         new_submenu = await submenu_crud.create(submenu, session, menu_id=menu_id)
         await cache.invalidate(
@@ -48,6 +51,7 @@ class SubmenuService:
         submenu_id: uuid.UUID,
         session: AsyncSession
     ) -> SubmenuAnnotatedDict | SubmenuCachedDict:
+        """Получить субменю."""
         submenu_cache: SubmenuCachedDict | None = await cache.get(f'{OBJ_PREFIX}:{menu_id}:{submenu_id}')
         if submenu_cache is not None:
             return submenu_cache
@@ -62,6 +66,7 @@ class SubmenuService:
         obj_in: SubmenuUpdate,
         session: AsyncSession
     ) -> Submenu:
+        """Обновить субменю."""
         submenu = await submenu_crud.get_filtered_or_404(menu_id, submenu_id, session)
         updated_submenu = await submenu_crud.update(submenu, obj_in, session)
         await cache.invalidate(
@@ -78,6 +83,7 @@ class SubmenuService:
         submenu_id: uuid.UUID,
         session: AsyncSession
     ) -> Submenu:
+        """Удалить субменю."""
         submenu = await submenu_crud.get_filtered_or_404(menu_id, submenu_id, session)
         deleted_submenu = await submenu_crud.remove(submenu, session)
         await cache.invalidate(

@@ -4,6 +4,10 @@ ValueType = TypeVar('ValueType')
 
 
 def convert_price_to_float(value: str) -> float:
+    """
+    Конвертация поля из `str` во `float`.
+    Проверка на неотрицательное значение.
+    """
     price = float(value)
     if price < 0:
         raise ValueError('price не может иметь отрицательное значение')

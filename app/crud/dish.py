@@ -19,7 +19,7 @@ class CRUDDish(
         submenu_id: uuid.UUID,
         session: AsyncSession
     ) -> list[Dish]:
-        """Получение всех объектов."""
+        """Получение списка отфильтрованных по `menu_id` и `submenu_id` объектов."""
         db_objs = await session.execute(
             select(Dish)
             .join(Submenu, Submenu.id == Dish.submenu_id)
@@ -34,7 +34,7 @@ class CRUDDish(
         obj_id: uuid.UUID,
         session: AsyncSession,
     ) -> Dish | None:
-        """Получение объекта по id."""
+        """Получение объекта по id, если он связан с соответствующими меню и субменю."""
         dish = await session.execute(
             select(Dish)
             .join(Submenu, Submenu.id == Dish.submenu_id)
@@ -54,7 +54,7 @@ class CRUDDish(
         session: AsyncSession,
     ) -> Dish:
         """
-        Получение объекта по id.
+        Получение объекта по id, если он связан с соответствующими меню и субменю.
 
         При отсутствии объекта вызывает HTTPException со статусом 404.
         """
