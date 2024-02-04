@@ -61,8 +61,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         При отсутствии объекта вызывает HTTPException со статусом 404.
         """
         obj = await self.get(obj_id, session)
-        obj = self._exists_or_404(obj)
-        return obj
+        return self._exists_or_404(obj)
 
     async def get_multi(
         self,

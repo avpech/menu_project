@@ -73,14 +73,14 @@ async def init_db():
 
 @pytest.fixture(autouse=True, scope='function')
 async def clear_db(init_db):
-    InternalSession = sessionmaker(
+    internal_session = sessionmaker(
         expire_on_commit=False,
         autocommit=False,
         autoflush=False,
         bind=init_db,
         class_=AsyncSession,
     )
-    async with InternalSession() as session:
+    async with internal_session() as session:
         await session.begin()
         yield session
         await session.rollback()

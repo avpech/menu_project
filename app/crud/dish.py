@@ -59,8 +59,7 @@ class CRUDDish(
         При отсутствии объекта вызывает HTTPException со статусом 404.
         """
         obj = await self.get_filtered(menu_id, submenu_id, obj_id, session)
-        obj = self._exists_or_404(obj, detail='dish not found')
-        return obj
+        return self._exists_or_404(obj, detail='dish not found')
 
 
 dish_crud = CRUDDish(Dish)

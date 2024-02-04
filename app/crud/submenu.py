@@ -77,8 +77,7 @@ class CRUDSubmenu(
         При отсутствии объекта вызывает HTTPException со статусом 404.
         """
         obj = await self.get_filtered_annotated(menu_id, obj_id, session)
-        obj = self._exists_or_404(obj, detail='submenu not found')
-        return obj
+        return self._exists_or_404(obj, detail='submenu not found')
 
     async def get_filtered(
         self,
@@ -105,8 +104,7 @@ class CRUDSubmenu(
         При отсутствии объекта вызывает HTTPException со статусом 404.
         """
         obj = await self.get_filtered(menu_id, obj_id, session)
-        obj = self._exists_or_404(obj, detail='submenu not found')
-        return obj
+        return self._exists_or_404(obj, detail='submenu not found')
 
 
 submenu_crud = CRUDSubmenu(Submenu)

@@ -7,7 +7,7 @@ from .conftest import app
 # Много кода и неудобная сигнатура, поэтому решил использовать более простой и удобный вариант из utils.py.
 
 
-class PathNotFound(Exception):
+class PathNotFoundError(Exception):
     def __init__(self, name: str, path_params: list[Any] | dict[str, Any] | None) -> None:
         if isinstance(path_params, dict):
             params = ', '.join(list(key + '=' + str(value) for key, value in path_params.items()))
@@ -35,8 +35,7 @@ def reverse(viewname: str, args: list[Any] | None = None, kwargs: dict[str, Any]
                 if args:
                     path = re.sub(r'\{([^}]+)\}', '{}', route.path)
                     return path.format(*args)
-                elif kwargs:
-                    return route.path.format(**kwargs)
+                return route.path.format(**kwargs)
             except Exception:
                 pass
-    raise PathNotFound(viewname, args or kwargs)
+    raise PathNotFoundError(viewname, args or kwargs)

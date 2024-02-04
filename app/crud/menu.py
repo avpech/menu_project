@@ -73,8 +73,7 @@ class CRUDMenu(
         При отсутствии объекта вызывает HTTPException со статусом 404.
         """
         obj = await self.get_annotated(obj_id, session)
-        obj = self._exists_or_404(obj, detail='menu not found')
-        return obj
+        return self._exists_or_404(obj, detail='menu not found')
 
 
 menu_crud = CRUDMenu(Menu)
