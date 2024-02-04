@@ -111,9 +111,7 @@ async def test_dish_relation(client: AsyncClient, menu, submenu):
 
 
 @pytest.mark.parametrize('dish_title', [None, True, 123])
-async def test_dish_post_invalid_title(
-    client: AsyncClient, dish_title, menu, submenu
-):
+async def test_dish_post_invalid_title(client: AsyncClient, dish_title, menu, submenu):
     url = reverse(CREATE_DISH, menu_id=menu.id, submenu_id=submenu.id)
     json = {
         'title': dish_title,
@@ -128,9 +126,7 @@ async def test_dish_post_invalid_title(
 
 
 @pytest.mark.parametrize('dish_description', [None, True, 123])
-async def test_dish_post_invalid_description(
-    client: AsyncClient, dish_description, menu, submenu
-):
+async def test_dish_post_invalid_description(client: AsyncClient, dish_description, menu, submenu):
     url = reverse(CREATE_DISH, menu_id=menu.id, submenu_id=submenu.id)
     json = {
         'title': 'dish_title',
@@ -145,9 +141,7 @@ async def test_dish_post_invalid_description(
 
 
 @pytest.mark.parametrize('dish_price', [None, True, 123, '-234', 'ds34'])
-async def test_dish_post_invalid_price(
-    client: AsyncClient, dish_price, menu, submenu
-):
+async def test_dish_post_invalid_price(client: AsyncClient, dish_price, menu, submenu):
     url = reverse(CREATE_DISH, menu_id=menu.id, submenu_id=submenu.id)
     json = {
         'title': 'dish_title',
@@ -162,9 +156,7 @@ async def test_dish_post_invalid_price(
 
 
 @pytest.mark.parametrize('field', ['title', 'description', 'price'])
-async def test_dish_post_missing_field(
-    client: AsyncClient, field, menu, submenu
-):
+async def test_dish_post_missing_field(client: AsyncClient, field, menu, submenu):
     url = reverse(CREATE_DISH, menu_id=menu.id, submenu_id=submenu.id)
     json = {
         'title': 'submenu_title',
@@ -219,9 +211,7 @@ async def test_dish_get_if_menu_404(client: AsyncClient, menu, submenu, dish):
     )
 
 
-async def test_dish_get_if_submenu_404(
-    client: AsyncClient, menu, submenu, dish
-):
+async def test_dish_get_if_submenu_404(client: AsyncClient, menu, submenu, dish):
     url = reverse(GET_DISH, menu_id=menu.id, submenu_id=UNEXISTING_UUID, dish_id=dish.id)
     response = await client.get(url)
     assert response.status_code == HTTPStatus.NOT_FOUND, (
@@ -288,9 +278,7 @@ async def test_dish_patch_404(client: AsyncClient, menu, submenu):
     )
 
 
-async def test_dish_patch_if_menu_404(
-    client: AsyncClient, menu, submenu, dish
-):
+async def test_dish_patch_if_menu_404(client: AsyncClient, menu, submenu, dish):
     url = reverse(UPDATE_DISH, menu_id=UNEXISTING_UUID, submenu_id=submenu.id, dish_id=dish.id)
     json = {
         'title': 'dish_title_changed',
@@ -304,9 +292,7 @@ async def test_dish_patch_if_menu_404(
     )
 
 
-async def test_dish_patch_if_submenu_404(
-    client: AsyncClient, menu, submenu, dish
-):
+async def test_dish_patch_if_submenu_404(client: AsyncClient, menu, submenu, dish):
     url = reverse(UPDATE_DISH, menu_id=menu.id, submenu_id=UNEXISTING_UUID, dish_id=dish.id)
     json = {
         'title': 'dish_title_changed',
@@ -321,9 +307,7 @@ async def test_dish_patch_if_submenu_404(
 
 
 @pytest.mark.parametrize('field', ['title', 'description'])
-async def test_dish_patch_data(
-    client: AsyncClient, menu, submenu, dish, field
-):
+async def test_dish_patch_data(client: AsyncClient, menu, submenu, dish, field):
     url = reverse(UPDATE_DISH, menu_id=menu.id, submenu_id=submenu.id, dish_id=dish.id)
     json = {
         'title': 'dish_title_changed',
@@ -353,9 +337,7 @@ async def test_dish_patch_price(client: AsyncClient, menu, submenu, dish):
 
 
 @pytest.mark.parametrize('dish_title', [None, True, 123])
-async def test_dish_patch_invalid_title(
-    client: AsyncClient, dish_title, menu, submenu, dish
-):
+async def test_dish_patch_invalid_title(client: AsyncClient, dish_title, menu, submenu, dish):
     url = reverse(UPDATE_DISH, menu_id=menu.id, submenu_id=submenu.id, dish_id=dish.id)
     json = {
         'title': dish_title,
@@ -371,9 +353,7 @@ async def test_dish_patch_invalid_title(
 
 
 @pytest.mark.parametrize('dish_description', [None, True, 123])
-async def test_dish_patch_invalid_description(
-    client: AsyncClient, dish_description, menu, submenu, dish
-):
+async def test_dish_patch_invalid_description(client: AsyncClient, dish_description, menu, submenu, dish):
     url = reverse(UPDATE_DISH, menu_id=menu.id, submenu_id=submenu.id, dish_id=dish.id)
     json = {
         'title': 'menu_title_changed',
@@ -389,9 +369,7 @@ async def test_dish_patch_invalid_description(
 
 
 @pytest.mark.parametrize('dish_price', [None, True, 123, '-234', 'ds34'])
-async def test_dish_patch_invalid_price(
-    client: AsyncClient, dish_price, menu, submenu, dish
-):
+async def test_dish_patch_invalid_price(client: AsyncClient, dish_price, menu, submenu, dish):
     url = reverse(UPDATE_DISH, menu_id=menu.id, submenu_id=submenu.id, dish_id=dish.id)
     json = {
         'title': 'menu_title_changed',
@@ -426,9 +404,7 @@ async def test_dish_delete_404(client: AsyncClient, menu, submenu):
     )
 
 
-async def test_dish_delete_if_menu_404(
-    client: AsyncClient, menu, submenu, dish
-):
+async def test_dish_delete_if_menu_404(client: AsyncClient, menu, submenu, dish):
     url = reverse(DELETE_DISH, menu_id=UNEXISTING_UUID, submenu_id=submenu.id, dish_id=dish.id)
     response = await client.delete(url)
     assert response.status_code == HTTPStatus.NOT_FOUND, (
@@ -438,9 +414,7 @@ async def test_dish_delete_if_menu_404(
     )
 
 
-async def test_dish_delete_if_submenu_404(
-    client: AsyncClient, menu, submenu, dish
-):
+async def test_dish_delete_if_submenu_404(client: AsyncClient, menu, submenu, dish):
     url = reverse(DELETE_DISH, menu_id=menu.id, submenu_id=UNEXISTING_UUID, dish_id=dish.id)
     response = await client.delete(url)
     assert response.status_code == HTTPStatus.NOT_FOUND, (
@@ -450,9 +424,7 @@ async def test_dish_delete_if_submenu_404(
     )
 
 
-async def test_dish_delete_object_deleted(
-    client: AsyncClient, menu, submenu, dish
-):
+async def test_dish_delete_object_deleted(client: AsyncClient, menu, submenu, dish):
     url = reverse(DELETE_DISH, menu_id=menu.id, submenu_id=submenu.id, dish_id=dish.id)
     await client.delete(url)
     async with TestingSessionLocal() as session:

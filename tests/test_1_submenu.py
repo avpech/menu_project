@@ -92,9 +92,7 @@ async def test_submenu_relation(client: AsyncClient, menu):
 
 
 @pytest.mark.parametrize('submenu_title', [None, True, 123])
-async def test_submenu_post_invalid_title(
-    client: AsyncClient, submenu_title, menu
-):
+async def test_submenu_post_invalid_title(client: AsyncClient, submenu_title, menu):
     url = reverse(CREATE_SUBMENU, menu_id=menu.id)
     json = {
         'title': submenu_title,
@@ -108,9 +106,7 @@ async def test_submenu_post_invalid_title(
 
 
 @pytest.mark.parametrize('submenu_description', [None, True, 123])
-async def test_submenu_post_invalid_description(
-    client: AsyncClient, submenu_description, menu
-):
+async def test_submenu_post_invalid_description(client: AsyncClient, submenu_description, menu):
     url = reverse(CREATE_SUBMENU, menu_id=menu.id)
     json = {
         'title': 'title',
@@ -252,9 +248,7 @@ async def test_submenu_patch_data(client: AsyncClient, menu, submenu, field):
 
 
 @pytest.mark.parametrize('submenu_title', [None, True, 123])
-async def test_submenu_patch_invalid_title(
-    client: AsyncClient, submenu_title, menu, submenu
-):
+async def test_submenu_patch_invalid_title(client: AsyncClient, submenu_title, menu, submenu):
     url = reverse(UPDATE_SUBMENU, menu_id=menu.id, submenu_id=submenu.id)
     json = {
         'title': submenu_title,
@@ -268,9 +262,7 @@ async def test_submenu_patch_invalid_title(
 
 
 @pytest.mark.parametrize('submenu_description', [None, True, 123])
-async def test_submenu_patch_invalid_description(
-    client: AsyncClient, submenu_description, menu, submenu
-):
+async def test_submenu_patch_invalid_description(client: AsyncClient, submenu_description, menu, submenu):
     url = reverse(UPDATE_SUBMENU, menu_id=menu.id, submenu_id=submenu.id)
     json = {
         'title': 'menu_title_changed',
@@ -310,9 +302,7 @@ async def test_submenu_delete_if_menu_404(client: AsyncClient, menu, submenu):
     )
 
 
-async def test_submenu_delete_object_deleted(
-    client: AsyncClient, menu, submenu
-):
+async def test_submenu_delete_object_deleted(client: AsyncClient, menu, submenu):
     url = reverse(DELETE_SUBMENU, menu_id=menu.id, submenu_id=submenu.id)
     await client.delete(url)
     async with TestingSessionLocal() as session:

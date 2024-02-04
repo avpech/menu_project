@@ -92,9 +92,7 @@ async def test_menu_post_invalid_title(client: AsyncClient, menu_title):
 
 
 @pytest.mark.parametrize('menu_description', [None, True, 123])
-async def test_menu_post_invalid_description(
-    client: AsyncClient, menu_description
-):
+async def test_menu_post_invalid_description(client: AsyncClient, menu_description):
     url = reverse(CREATE_MENU)
     json = {
         'title': 'title',
@@ -218,9 +216,7 @@ async def test_menu_patch_invalid_title(client: AsyncClient, menu_title, menu):
 
 
 @pytest.mark.parametrize('menu_description', [None, True, 123])
-async def test_menu_patch_invalid_description(
-    client: AsyncClient, menu_description, menu
-):
+async def test_menu_patch_invalid_description(client: AsyncClient, menu_description, menu):
     url = reverse(UPDATE_MENU, menu_id=menu.id)
     json = {
         'title': 'menu_title_changed',

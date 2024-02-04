@@ -19,6 +19,12 @@ class PathNotFound(Exception):
 
 
 def reverse(viewname: str, args: list[Any] | None = None, kwargs: dict[str, Any] | None = None):
+    """
+    Получение `url` по имени view-функции.
+
+    Path-параметры могут быть переданы либо как позиционные аргументы в списке `args`,
+    либо как именованные аргументы в словаре `kwargs`.
+    """
     if args and kwargs:
         raise Exception('reverse() can`t accept both `args` and `kwargs` ')
     if not (args or kwargs):

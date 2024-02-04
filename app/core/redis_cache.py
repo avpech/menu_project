@@ -41,7 +41,11 @@ class RedisCache:
             return None
         return json.loads(value)
 
-    async def invalidate(self, keys: list[str] | None = None, pattern: str | None = None) -> None:
+    async def invalidate(
+        self,
+        keys: list[str] | None = None,
+        pattern: str | None = None
+    ) -> None:
         """
         Инвалидировать ключи.
 
