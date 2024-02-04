@@ -23,6 +23,9 @@ class RedisCache:
     async def disconnect(self) -> None:
         await self.client.close()
 
+    async def clean(self) -> None:
+        await self.client.flushdb()
+
     async def set(self, key: str, value: Any) -> None:
         value = json.dumps(jsonable_encoder(value))
         await self.client.set(key, value, ex=settings.cache_lifetime)
