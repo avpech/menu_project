@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 from httpx import AsyncClient
 
-from tests.constants import (
+from .constants import (
     DELETE_MENU,
     DELETE_SUBMENU,
     GET_ALL_DISHES,
@@ -13,7 +13,7 @@ from tests.constants import (
     MENU_OBJ_URL,
     SUBMENU_OBJ_URL,
 )
-from tests.utils import reverse
+from .utils import reverse
 
 
 async def test_menu_get_count_dishes_and_submenus(

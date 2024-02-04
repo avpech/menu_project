@@ -43,5 +43,5 @@ class DishDB(BaseModel):
     submenu_id: uuid.UUID
 
     @field_validator('price', mode='before')
-    def convert_price_to_str(cls, value: float):
+    def convert_price_to_str(cls, value: float) -> str:
         return f'{value:.{PRICE_SCALE}f}'

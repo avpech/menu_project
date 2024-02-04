@@ -1,11 +1,11 @@
 from http import HTTPStatus
 
 import pytest
-from conftest import Dish, TestingSessionLocal
 from httpx import AsyncClient
 from sqlalchemy import func, select
 
-from tests.constants import (
+from .conftest import Dish, TestingSessionLocal
+from .constants import (
     CREATE_DISH,
     DELETE_DISH,
     DISH_OBJ_URL,
@@ -15,7 +15,7 @@ from tests.constants import (
     UNEXISTING_UUID,
     UPDATE_DISH,
 )
-from tests.utils import reverse
+from .utils import reverse
 
 
 async def test_dish_get_empty_list(client: AsyncClient, menu, submenu):

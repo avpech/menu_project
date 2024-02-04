@@ -1,10 +1,13 @@
 import uuid
 from http import HTTPStatus
+from typing import Sequence
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.custom_types import DishCacheDict
 from app.core.db import get_async_session
+from app.models import Dish
 from app.schemas.dish import DishCreate, DishDB, DishUpdate
 from app.services import dish_service
 
@@ -19,7 +22,7 @@ async def get_all_dishes(
     menu_id: uuid.UUID,
     submenu_id: uuid.UUID,
     session: AsyncSession = Depends(get_async_session)
-):
+) -> Sequence[Dish | DishCacheDict]:
     """Получить список всех блюд."""
     return await dish_service.get_list(menu_id, submenu_id, session)
 
@@ -34,7 +37,7 @@ async def create_dish(
     submenu_id: uuid.UUID,
     dish: DishCreate,
     session: AsyncSession = Depends(get_async_session)
-):
+) -> Dish:
     """
     Добавить блюдо.
 
@@ -54,7 +57,7 @@ async def get_dish(
     submenu_id: uuid.UUID,
     dish_id: uuid.UUID,
     session: AsyncSession = Depends(get_async_session)
-):
+) -> Dish | DishCacheDict:
     """Получить блюдо по id."""
     return await dish_service.get(menu_id, submenu_id, dish_id, session)
 
@@ -69,7 +72,7 @@ async def update_dish(
     dish_id: uuid.UUID,
     obj_in: DishUpdate,
     session: AsyncSession = Depends(get_async_session)
-):
+) -> Dish:
     """
     Изменить блюдо.
 
@@ -89,6 +92,6 @@ async def delete_dish(
     submenu_id: uuid.UUID,
     dish_id: uuid.UUID,
     session: AsyncSession = Depends(get_async_session)
-):
+) -> Dish:
     """Удалить блюдо."""
     return await dish_service.delete(menu_id, submenu_id, dish_id, session)

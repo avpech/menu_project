@@ -1,7 +1,7 @@
 import re
 from typing import Any
 
-from conftest import app
+from .conftest import app
 
 # Альтернативная реализация с возможностью передачи позиционных аргументов и повторением сигнатуры reverse() Django.
 # Много кода и неудобная сигнатура, поэтому решил использовать более простой и удобный вариант из utils.py.

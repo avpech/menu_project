@@ -1,3 +1,8 @@
+from typing import TypeVar
+
+ValueType = TypeVar('ValueType')
+
+
 def convert_price_to_float(value: str) -> float:
     price = float(value)
     if price < 0:
@@ -5,7 +10,7 @@ def convert_price_to_float(value: str) -> float:
     return price
 
 
-def field_cannot_be_null(value):
+def field_cannot_be_null(value: ValueType) -> ValueType:
     """Валидация на недопустимость передачи полю значения null."""
     if value is None:
         raise ValueError('Значение поля не может быть null.')

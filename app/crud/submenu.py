@@ -3,6 +3,7 @@ import uuid
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.custom_types import SubmenuAnnotatedDict
 from app.crud.base import CRUDBase
 from app.models import Dish, Submenu
 from app.schemas.submenu import SubmenuCreate, SubmenuUpdate
@@ -17,7 +18,7 @@ class CRUDSubmenu(
         self,
         menu_id: uuid.UUID,
         session: AsyncSession
-    ) -> list[Submenu]:
+    ) -> list[SubmenuAnnotatedDict]:
         """Получение всех объектов."""
         db_objs = await session.execute(
             select(Submenu, func.count(Dish.id))
@@ -25,19 +26,22 @@ class CRUDSubmenu(
             .where(Submenu.menu_id == menu_id)
             .group_by(Submenu.id)
         )
-        submenus = []
-        for db_obj in db_objs:
-            submenu, dishes_count = db_obj
-            submenu.dishes_count = dishes_count
-            submenus.append(submenu)
-        return submenus
+        return [
+            {
+                'id': submenu.id,
+                'title': submenu.title,
+                'description': submenu.description,
+                'menu_id': submenu.menu_id,
+                'dishes_count': dishes_count
+            } for submenu, dishes_count in db_objs
+        ]
 
     async def get_filtered_annotated(
         self,
         menu_id: uuid.UUID,
         obj_id: uuid.UUID,
         session: AsyncSession,
-    ) -> Submenu | None:
+    ) -> SubmenuAnnotatedDict | None:
         """Получение объекта по id."""
         db_obj = await session.execute(
             select(Submenu, func.count(Dish.id))
@@ -49,15 +53,20 @@ class CRUDSubmenu(
         if db_obj is None:
             return None
         submenu, dishes_count = db_obj
-        submenu.dishes_count = dishes_count
-        return submenu
+        return {
+            'id': submenu.id,
+            'title': submenu.title,
+            'description': submenu.description,
+            'menu_id': submenu.menu_id,
+            'dishes_count': dishes_count
+        }
 
     async def get_filtered_annotated_or_404(
         self,
         menu_id: uuid.UUID,
         obj_id: uuid.UUID,
         session: AsyncSession,
-    ) -> Submenu:
+    ) -> SubmenuAnnotatedDict:
         """
         Получение объекта по id.
 

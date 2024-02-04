@@ -22,7 +22,7 @@ from app.core.constants import (
 class Base(DeclarativeBase):
 
     @declared_attr
-    def __tablename__(cls):
+    def __tablename__(cls) -> str:
         return cls.__name__.lower()
 
     id: Mapped[uuid.UUID] = mapped_column(

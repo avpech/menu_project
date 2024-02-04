@@ -14,20 +14,20 @@ class RedisCache:
     def __init__(self) -> None:
         self.client: Redis = redis.Redis(decode_responses=True)
 
-    async def disconnect(self):
-        await self.client.aclose()
+    async def disconnect(self) -> None:
+        await self.client.close()
 
-    async def set(self, key, value):
+    async def set(self, key: str, value: Any) -> None:
         value = json.dumps(jsonable_encoder(value))
         await self.client.set(key, value, ex=100)
 
-    async def get(self, key):
+    async def get(self, key: str) -> Any:
         value = await self.client.get(key)
         if value is None:
             return None
         return json.loads(value)
 
-    async def invalidate(self, keys: list[str] | None = None, pattern: str | None = None):
+    async def invalidate(self, keys: list[str] | None = None, pattern: str | None = None) -> None:
         keys_to_delete = []
         if keys is not None:
             keys_to_delete.extend(keys)

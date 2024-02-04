@@ -1,4 +1,4 @@
-from conftest import app
+from .conftest import app
 
 
 def reverse(viewname: str, **kwargs):

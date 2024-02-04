@@ -1,10 +1,13 @@
 import uuid
 from http import HTTPStatus
+from typing import Sequence
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.custom_types import MenuAnnotatedDict, MenuCachedDict
 from app.core.db import get_async_session
+from app.models import Menu
 from app.schemas.menu import MenuCreate, MenuDB, MenuUpdate, MenuWithCountDB
 from app.services import menu_service
 
@@ -14,7 +17,7 @@ router = APIRouter()
 @router.get('/', response_model=list[MenuWithCountDB])
 async def get_all_menus(
     session: AsyncSession = Depends(get_async_session)
-):
+) -> Sequence[MenuAnnotatedDict | MenuCachedDict]:
     """Получить список всех меню."""
     return await menu_service.get_list(session)
 
@@ -23,7 +26,7 @@ async def get_all_menus(
 async def create_menu(
     menu: MenuCreate,
     session: AsyncSession = Depends(get_async_session)
-):
+) -> Menu:
     """
     Создать меню.
 
@@ -37,7 +40,7 @@ async def create_menu(
 async def get_menu(
     menu_id: uuid.UUID,
     session: AsyncSession = Depends(get_async_session)
-):
+) -> MenuAnnotatedDict | MenuCachedDict:
     """Получить меню по id."""
     return await menu_service.get(menu_id, session)
 
@@ -47,7 +50,7 @@ async def update_menu(
     menu_id: uuid.UUID,
     obj_in: MenuUpdate,
     session: AsyncSession = Depends(get_async_session)
-):
+) -> Menu:
     """
     Изменить меню.
 
@@ -61,6 +64,6 @@ async def update_menu(
 async def delete_menu(
     menu_id: uuid.UUID,
     session: AsyncSession = Depends(get_async_session)
-):
+) -> Menu:
     """Удалить меню."""
     return await menu_service.delete(menu_id, session)

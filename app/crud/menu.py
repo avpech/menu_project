@@ -3,6 +3,7 @@ import uuid
 from sqlalchemy import distinct, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.custom_types import MenuAnnotatedDict
 from app.crud.base import CRUDBase
 from app.models import Dish, Menu, Submenu
 from app.schemas.menu import MenuCreate, MenuUpdate
@@ -16,7 +17,7 @@ class CRUDMenu(
     async def get_multi_annotated(
         self,
         session: AsyncSession
-    ) -> list[Menu]:
+    ) -> list[MenuAnnotatedDict]:
         """Получение всех объектов."""
         db_objs = await session.execute(
             select(Menu, func.count(distinct(Submenu.id)), func.count(Dish.id))
@@ -25,19 +26,21 @@ class CRUDMenu(
             .join(Submenu.dishes, isouter=True)
             .group_by(Menu.id)
         )
-        menus = []
-        for db_obj in db_objs:
-            menu, submenus_count, dishes_count = db_obj
-            menu.submenus_count = submenus_count
-            menu.dishes_count = dishes_count
-            menus.append(menu)
-        return menus
+        return [
+            {
+                'id': menu.id,
+                'title': menu.title,
+                'description': menu.description,
+                'submenus_count': submenus_count,
+                'dishes_count': dishes_count
+            } for menu, submenus_count, dishes_count in db_objs
+        ]
 
     async def get_annotated(
         self,
         obj_id: uuid.UUID,
         session: AsyncSession,
-    ) -> Menu | None:
+    ) -> MenuAnnotatedDict | None:
         """Получение объекта по id."""
         db_obj = await session.execute(
             select(Menu, func.count(distinct(Submenu.id)), func.count(Dish.id))
@@ -51,15 +54,19 @@ class CRUDMenu(
         if db_obj is None:
             return None
         menu, submenus_count, dishes_count = db_obj
-        menu.submenus_count = submenus_count
-        menu.dishes_count = dishes_count
-        return menu
+        return {
+            'id': menu.id,
+            'title': menu.title,
+            'description': menu.description,
+            'submenus_count': submenus_count,
+            'dishes_count': dishes_count
+        }
 
     async def get_annotated_or_404(
         self,
         obj_id: uuid.UUID,
         session: AsyncSession,
-    ) -> Menu:
+    ) -> MenuAnnotatedDict:
         """
         Получение объекта по id.
 

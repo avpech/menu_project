@@ -1,9 +1,12 @@
 import uuid
+from typing import Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.custom_types import DishCacheDict
 from app.core.redis_cache import LIST_PREFIX, OBJ_PREFIX, cache
 from app.crud import dish_crud
+from app.models import Dish
 from app.schemas.dish import DishCreate, DishUpdate
 from app.services.validators import check_submenu_url_exists
 
@@ -15,9 +18,9 @@ class DishService:
         menu_id: uuid.UUID,
         submenu_id: uuid.UUID,
         session: AsyncSession
-    ):
+    ) -> Sequence[Dish | DishCacheDict]:
         """Получить список всех блюд."""
-        dish_list_cache = await cache.get(f'{LIST_PREFIX}:{menu_id}:{submenu_id}')
+        dish_list_cache: list[DishCacheDict] | None = await cache.get(f'{LIST_PREFIX}:{menu_id}:{submenu_id}')
         if dish_list_cache is not None:
             return dish_list_cache
         dish_list = await dish_crud.get_multi_filtered(menu_id, submenu_id, session)
@@ -30,7 +33,7 @@ class DishService:
         submenu_id: uuid.UUID,
         dish: DishCreate,
         session: AsyncSession
-    ):
+    ) -> Dish:
         await check_submenu_url_exists(menu_id, submenu_id, session)
         new_dish = await dish_crud.create(dish, session, submenu_id=submenu_id)
         await cache.invalidate(
@@ -50,8 +53,8 @@ class DishService:
         submenu_id: uuid.UUID,
         dish_id: uuid.UUID,
         session: AsyncSession
-    ):
-        dish_cache = await cache.get(f'{OBJ_PREFIX}:{menu_id}:{submenu_id}:{dish_id}')
+    ) -> Dish | DishCacheDict:
+        dish_cache: DishCacheDict | None = await cache.get(f'{OBJ_PREFIX}:{menu_id}:{submenu_id}:{dish_id}')
         if dish_cache is not None:
             return dish_cache
         dish = await dish_crud.get_filtered_or_404(menu_id, submenu_id, dish_id, session)
@@ -65,7 +68,7 @@ class DishService:
         dish_id: uuid.UUID,
         obj_in: DishUpdate,
         session: AsyncSession
-    ):
+    ) -> Dish:
         dish = await dish_crud.get_filtered_or_404(menu_id, submenu_id, dish_id, session)
         updated_dish = await dish_crud.update(dish, obj_in, session)
         await cache.invalidate(
@@ -82,7 +85,7 @@ class DishService:
         submenu_id: uuid.UUID,
         dish_id: uuid.UUID,
         session: AsyncSession
-    ):
+    ) -> Dish:
         dish = await dish_crud.get_filtered_or_404(menu_id, submenu_id, dish_id, session)
         deleted_dish = await dish_crud.remove(dish, session)
         await cache.invalidate(

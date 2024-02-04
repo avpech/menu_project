@@ -1,11 +1,11 @@
 from http import HTTPStatus
 
 import pytest
-from conftest import Menu, TestingSessionLocal
 from httpx import AsyncClient
 from sqlalchemy import func, select
 
-from tests.constants import (
+from .conftest import Menu, TestingSessionLocal
+from .constants import (
     CREATE_MENU,
     DELETE_MENU,
     GET_ALL_MENUS,
@@ -15,7 +15,7 @@ from tests.constants import (
     UNEXISTING_UUID,
     UPDATE_MENU,
 )
-from tests.utils import reverse
+from .utils import reverse
 
 
 async def test_menu_get_empty_list(client: AsyncClient):

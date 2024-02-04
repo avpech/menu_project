@@ -1,9 +1,12 @@
 import uuid
+from typing import Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.custom_types import SubmenuAnnotatedDict, SubmenuCachedDict
 from app.core.redis_cache import LIST_PREFIX, OBJ_PREFIX, cache
 from app.crud import submenu_crud
+from app.models import Submenu
 from app.schemas.submenu import SubmenuCreate, SubmenuUpdate
 from app.services.validators import check_menu_url_exists
 
@@ -14,8 +17,8 @@ class SubmenuService:
         self,
         menu_id: uuid.UUID,
         session: AsyncSession
-    ):
-        submenu_list_cache = await cache.get(f'{LIST_PREFIX}:{menu_id}')
+    ) -> Sequence[SubmenuAnnotatedDict | SubmenuCachedDict]:
+        submenu_list_cache: list[SubmenuCachedDict] | None = await cache.get(f'{LIST_PREFIX}:{menu_id}')
         if submenu_list_cache is not None:
             return submenu_list_cache
         submenu_list = await submenu_crud.get_multi_filtered_annotated(menu_id, session)
@@ -27,7 +30,7 @@ class SubmenuService:
         menu_id: uuid.UUID,
         submenu: SubmenuCreate,
         session: AsyncSession
-    ):
+    ) -> Submenu:
         await check_menu_url_exists(menu_id, session)
         new_submenu = await submenu_crud.create(submenu, session, menu_id=menu_id)
         await cache.invalidate(
@@ -44,8 +47,8 @@ class SubmenuService:
         menu_id: uuid.UUID,
         submenu_id: uuid.UUID,
         session: AsyncSession
-    ):
-        submenu_cache = await cache.get(f'{OBJ_PREFIX}:{menu_id}:{submenu_id}')
+    ) -> SubmenuAnnotatedDict | SubmenuCachedDict:
+        submenu_cache: SubmenuCachedDict | None = await cache.get(f'{OBJ_PREFIX}:{menu_id}:{submenu_id}')
         if submenu_cache is not None:
             return submenu_cache
         submenu = await submenu_crud.get_filtered_annotated_or_404(menu_id, submenu_id, session)
@@ -58,7 +61,7 @@ class SubmenuService:
         submenu_id: uuid.UUID,
         obj_in: SubmenuUpdate,
         session: AsyncSession
-    ):
+    ) -> Submenu:
         submenu = await submenu_crud.get_filtered_or_404(menu_id, submenu_id, session)
         updated_submenu = await submenu_crud.update(submenu, obj_in, session)
         await cache.invalidate(
@@ -74,8 +77,8 @@ class SubmenuService:
         menu_id: uuid.UUID,
         submenu_id: uuid.UUID,
         session: AsyncSession
-    ):
-        submenu = await submenu_crud.get_filtered_annotated_or_404(menu_id, submenu_id, session)
+    ) -> Submenu:
+        submenu = await submenu_crud.get_filtered_or_404(menu_id, submenu_id, session)
         deleted_submenu = await submenu_crud.remove(submenu, session)
         await cache.invalidate(
             keys=[

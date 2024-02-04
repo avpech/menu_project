@@ -13,6 +13,7 @@ from app.models import Base
 ModelType = TypeVar('ModelType', bound=Base)
 CreateSchemaType = TypeVar('CreateSchemaType', bound=BaseModel)
 UpdateSchemaType = TypeVar('UpdateSchemaType', bound=BaseModel)
+AnyType = TypeVar('AnyType')
 
 
 class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
@@ -26,9 +27,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     def _exists_or_404(
         self,
-        obj: ModelType | None,
+        obj: AnyType | None,
         detail: str = 'not found'
-    ) -> ModelType:
+    ) -> AnyType:
         if obj is None:
             raise HTTPException(
                 status_code=HTTPStatus.NOT_FOUND,
