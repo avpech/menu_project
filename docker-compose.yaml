@@ -18,7 +18,7 @@ services:
     networks:
       - menu_network
     healthcheck:
-      test: pg_isready -U ${DB_USER}
+      test: pg_isready -U ${DB_USER} -d ${DB_NAME}
       interval: 10s
       timeout: 10s
       retries: 20
