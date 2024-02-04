@@ -5,6 +5,8 @@ import redis.asyncio as redis
 from fastapi.encoders import jsonable_encoder
 from redis.asyncio.client import Redis
 
+from app.core.config import settings
+
 LIST_PREFIX = 'list'
 OBJ_PREFIX = 'obj'
 
@@ -12,14 +14,18 @@ OBJ_PREFIX = 'obj'
 class RedisCache:
 
     def __init__(self) -> None:
-        self.client: Redis = redis.Redis(decode_responses=True)
+        self.client: Redis = redis.Redis(
+            host=settings.redis_host,
+            port=settings.redis_port,
+            decode_responses=True
+        )
 
     async def disconnect(self) -> None:
         await self.client.close()
 
     async def set(self, key: str, value: Any) -> None:
         value = json.dumps(jsonable_encoder(value))
-        await self.client.set(key, value, ex=100)
+        await self.client.set(key, value, ex=settings.cache_lifetime)
 
     async def get(self, key: str) -> Any:
         value = await self.client.get(key)
