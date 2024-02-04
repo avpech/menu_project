@@ -10,9 +10,9 @@ class Settings(BaseSettings):
     db_password: str
     db_host: str
     db_port: str
-    redis_host: str
-    redis_port: int
-    cache_lifetime: int
+    redis_host: str = 'localhost'
+    redis_port: int = 6379
+    cache_lifetime: int = 60
     model_config = SettingsConfigDict(env_file='.env', extra='ignore')
 
 

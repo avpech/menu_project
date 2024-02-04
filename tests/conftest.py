@@ -48,7 +48,10 @@ def event_loop():
 
 @pytest.fixture(autouse=True, scope='session')
 async def redis_client():
-    client: Redis = redis.Redis()
+    client: Redis = redis.Redis(
+        host=os.getenv('REDIS_HOST', 'localhost'),
+        port=os.getenv('REDIS_PORT', 6379)
+    )
     await client.flushdb()
     yield client
     await client.aclose()

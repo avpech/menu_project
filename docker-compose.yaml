@@ -24,6 +24,17 @@ services:
       retries: 20
       start_period: 10s
 
+  redis_menu:
+    container_name: redis_menu
+    restart: always
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - menu_network
+    env_file:
+      - ./.env
+
   api_menu:
     build:
       context: .
@@ -31,6 +42,7 @@ services:
     restart: always
     environment:
       DB_HOST: "postgres_menu"
+      REDIS_HOST: "redis_menu"
     entrypoint: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
     networks:
       - menu_network
@@ -39,6 +51,8 @@ services:
     depends_on:
       postgres_menu:
         condition: service_healthy
+      redis_menu:
+        condition: service_started
     env_file:
       - ./.env
 

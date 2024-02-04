@@ -22,12 +22,24 @@ services:
       retries: 40
       start_period: 10s
 
+  redis_menu_test:
+    container_name: redis_menu_test
+    restart: always
+    image: redis:latest
+    ports:
+      - "6380:6379"
+    networks:
+      - test_menu_network
+    env_file:
+      - ./.env
+
   test_api_menu:
     build:
       context: .
       dockerfile: Dockerfile
     environment:
       DB_HOST: "postgres_menu_test"
+      REDIS_HOST: "redis_menu_test"
     tty: true
     entrypoint: sh -c "pytest"
     networks:
@@ -35,6 +47,8 @@ services:
     depends_on:
       postgres_menu_test:
         condition: service_healthy
+      redis_menu_test:
+        condition: service_started
     env_file:
       - ./.env
 
