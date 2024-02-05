@@ -9,6 +9,7 @@ from app.core.custom_types import DishCacheDict
 from app.core.db import get_async_session
 from app.models import Dish
 from app.schemas.dish import DishCreate, DishDB, DishUpdate
+from app.schemas.errors import DishNotFoundError, URLDoesNotExistError
 from app.services import dish_service
 
 router = APIRouter()
@@ -16,7 +17,8 @@ router = APIRouter()
 
 @router.get(
     '/{menu_id}/submenus/{submenu_id}/dishes',
-    response_model=list[DishDB]
+    response_model=list[DishDB],
+    responses={404: {'model': URLDoesNotExistError}}
 )
 async def get_all_dishes(
     menu_id: uuid.UUID,
@@ -30,7 +32,8 @@ async def get_all_dishes(
 @router.post(
     '/{menu_id}/submenus/{submenu_id}/dishes',
     response_model=DishDB,
-    status_code=HTTPStatus.CREATED
+    status_code=HTTPStatus.CREATED,
+    responses={404: {'model': URLDoesNotExistError}}
 )
 async def create_dish(
     menu_id: uuid.UUID,
@@ -50,7 +53,8 @@ async def create_dish(
 
 @router.get(
     '/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}',
-    response_model=DishDB
+    response_model=DishDB,
+    responses={404: {'model': DishNotFoundError}}
 )
 async def get_dish(
     menu_id: uuid.UUID,
@@ -64,7 +68,8 @@ async def get_dish(
 
 @router.patch(
     '/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}',
-    response_model=DishDB
+    response_model=DishDB,
+    responses={404: {'model': DishNotFoundError}}
 )
 async def update_dish(
     menu_id: uuid.UUID,
@@ -85,7 +90,8 @@ async def update_dish(
 
 @router.delete(
     '/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}',
-    response_model=DishDB
+    response_model=DishDB,
+    responses={404: {'model': DishNotFoundError}}
 )
 async def delete_dish(
     menu_id: uuid.UUID,

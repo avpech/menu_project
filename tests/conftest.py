@@ -1,12 +1,13 @@
 import asyncio
 import os
+from typing import AsyncIterator, Iterator
 
 import pytest
 import redis.asyncio as redis
 from dotenv import load_dotenv
 from httpx import AsyncClient
 from redis.asyncio.client import Redis
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import text
 
@@ -31,7 +32,7 @@ TestingSessionLocal = sessionmaker(
 )
 
 
-async def override_get_async_session():
+async def override_get_async_session() -> AsyncIterator[AsyncSession]:
     async with TestingSessionLocal() as session:
         yield session
 
@@ -40,30 +41,30 @@ app.dependency_overrides[get_async_session] = override_get_async_session
 
 
 @pytest.fixture(scope='session')
-def event_loop():
+def event_loop() -> Iterator[asyncio.AbstractEventLoop]:
     loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop
     loop.close()
 
 
 @pytest.fixture(autouse=True, scope='session')
-async def redis_client():
+async def redis_client() -> AsyncIterator[Redis]:
     client: Redis = redis.Redis(
         host=os.getenv('REDIS_HOST', 'localhost'),
-        port=os.getenv('REDIS_PORT', 6379)
+        port=int(os.getenv('REDIS_PORT', 6379))
     )
     await client.flushdb()
     yield client
-    await client.aclose()
+    await client.close()
 
 
 @pytest.fixture(autouse=True, scope='function')
-async def clear_cache(redis_client):
+async def clear_cache(redis_client: Redis):
     await redis_client.flushdb()
 
 
 @pytest.fixture(autouse=True, scope='session')
-async def init_db():
+async def init_db() -> AsyncIterator[AsyncEngine]:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield engine
@@ -72,7 +73,7 @@ async def init_db():
 
 
 @pytest.fixture(autouse=True, scope='function')
-async def clear_db(init_db):
+async def clear_db(init_db: AsyncEngine) -> AsyncIterator[AsyncSession]:
     internal_session = sessionmaker(
         expire_on_commit=False,
         autocommit=False,
@@ -90,13 +91,13 @@ async def clear_db(init_db):
 
 
 @pytest.fixture(scope='session')
-async def client():
+async def client() -> AsyncIterator[AsyncClient]:
     async with AsyncClient(app=app, base_url='http://test') as client:
         yield client
 
 
 @pytest.fixture()
-async def menu():
+async def menu() -> Menu:
     """Фикстура меню."""
     async with TestingSessionLocal() as session:
         menu = Menu(title='menu_title_fixture', description='menu_description')
@@ -107,7 +108,7 @@ async def menu():
 
 
 @pytest.fixture()
-async def submenu(menu):
+async def submenu(menu: Menu) -> Submenu:
     """Фикстура субменю."""
     async with TestingSessionLocal() as session:
         submenu = Submenu(
@@ -122,7 +123,7 @@ async def submenu(menu):
 
 
 @pytest.fixture()
-async def dish(submenu):
+async def dish(submenu: Submenu) -> Dish:
     """Фикстура блюда."""
     async with TestingSessionLocal() as session:
         dish = Dish(
@@ -138,7 +139,7 @@ async def dish(submenu):
 
 
 @pytest.fixture()
-async def dish_another(submenu):
+async def dish_another(submenu: Submenu) -> Dish:
     """Альтернативная фикстура блюда."""
     async with TestingSessionLocal() as session:
         dish = Dish(

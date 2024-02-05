@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from typing import Any
 
 import pytest
 from httpx import AsyncClient
@@ -32,7 +33,7 @@ class TestGetAllMenus:
             'когда в базе отсутствуют меню'
         )
 
-    async def test_menu_get_list(self, client: AsyncClient, menu):
+    async def test_menu_get_list(self, client: AsyncClient, menu: Menu):
         url = reverse(GET_ALL_MENUS)
         response = await client.get(url)
         assert response.status_code == HTTPStatus.OK, (
@@ -78,7 +79,7 @@ class TestCreateMenu:
         )
 
     @pytest.mark.parametrize('field', ['title', 'description'])
-    async def test_menu_post_data(self, client: AsyncClient, field):
+    async def test_menu_post_data(self, client: AsyncClient, field: str):
         url = reverse(CREATE_MENU)
         json = {
             'title': 'menu_title',
@@ -91,7 +92,7 @@ class TestCreateMenu:
         )
 
     @pytest.mark.parametrize('menu_title', [None, True, 123])
-    async def test_menu_post_invalid_title(self, client: AsyncClient, menu_title):
+    async def test_menu_post_invalid_title(self, client: AsyncClient, menu_title: Any):
         url = reverse(CREATE_MENU)
         json = {
             'title': menu_title,
@@ -104,7 +105,7 @@ class TestCreateMenu:
         )
 
     @pytest.mark.parametrize('menu_description', [None, True, 123])
-    async def test_menu_post_invalid_description(self, client: AsyncClient, menu_description):
+    async def test_menu_post_invalid_description(self, client: AsyncClient, menu_description: Any):
         url = reverse(CREATE_MENU)
         json = {
             'title': 'title',
@@ -117,7 +118,7 @@ class TestCreateMenu:
         )
 
     @pytest.mark.parametrize('field', ['title', 'description'])
-    async def test_menu_post_missing_field(self, client: AsyncClient, field):
+    async def test_menu_post_missing_field(self, client: AsyncClient, field: str):
         url = reverse(CREATE_MENU)
         json = {
             'title': 'menu_title',
@@ -133,7 +134,7 @@ class TestCreateMenu:
 
 class TestGetMenu:
 
-    async def test_menu_get_status(self, client: AsyncClient, menu):
+    async def test_menu_get_status(self, client: AsyncClient, menu: Menu):
         url = reverse(GET_MENU, menu_id=menu.id)
         response = await client.get(url)
         assert response.status_code == HTTPStatus.OK, (
@@ -150,7 +151,7 @@ class TestGetMenu:
         )
 
     @pytest.mark.parametrize('field', ['title', 'description'])
-    async def test_menu_get_data(self, client: AsyncClient, menu, field):
+    async def test_menu_get_data(self, client: AsyncClient, menu: Menu, field: str):
         url = reverse(GET_MENU, menu_id=menu.id)
         response = await client.get(url)
         assert response.json().get(field) == getattr(menu, field, None), (
@@ -161,7 +162,7 @@ class TestGetMenu:
 
 class TestUpdateMenu:
 
-    async def test_menu_patch_status(self, client: AsyncClient, menu):
+    async def test_menu_patch_status(self, client: AsyncClient, menu: Menu):
         url = reverse(UPDATE_MENU, menu_id=menu.id)
         json = {
             'title': 'menu_title_changed',
@@ -186,7 +187,7 @@ class TestUpdateMenu:
         )
 
     @pytest.mark.parametrize('field', ['title', 'description'])
-    async def test_menu_patch_data(self, client: AsyncClient, menu, field):
+    async def test_menu_patch_data(self, client: AsyncClient, menu: Menu, field: str):
         url = reverse(UPDATE_MENU, menu_id=menu.id)
         json = {
             'title': 'menu_title_changed',
@@ -199,7 +200,12 @@ class TestUpdateMenu:
         )
 
     @pytest.mark.parametrize('menu_title', [None, True, 123])
-    async def test_menu_patch_invalid_title(self, client: AsyncClient, menu_title, menu):
+    async def test_menu_patch_invalid_title(
+        self,
+        client: AsyncClient,
+        menu_title: Any,
+        menu: Menu
+    ):
         url = reverse(UPDATE_MENU, menu_id=menu.id)
         json = {
             'title': menu_title,
@@ -212,7 +218,12 @@ class TestUpdateMenu:
         )
 
     @pytest.mark.parametrize('menu_description', [None, True, 123])
-    async def test_menu_patch_invalid_description(self, client: AsyncClient, menu_description, menu):
+    async def test_menu_patch_invalid_description(
+        self,
+        client: AsyncClient,
+        menu_description: Any,
+        menu: Menu
+    ):
         url = reverse(UPDATE_MENU, menu_id=menu.id)
         json = {
             'title': 'menu_title_changed',
@@ -227,7 +238,7 @@ class TestUpdateMenu:
 
 class TestDeleteMenu:
 
-    async def test_menu_delete_status(self, client: AsyncClient, menu):
+    async def test_menu_delete_status(self, client: AsyncClient, menu: Menu):
         url = reverse(DELETE_MENU, menu_id=menu.id)
         response = await client.delete(url)
         assert response.status_code == HTTPStatus.OK, (
@@ -243,7 +254,7 @@ class TestDeleteMenu:
             'статус 404, если меню с `menu_id` отсутствует в базе'
         )
 
-    async def test_menu_delete_object_deleted(self, client: AsyncClient, menu):
+    async def test_menu_delete_object_deleted(self, client: AsyncClient, menu: Menu):
         url = reverse(DELETE_MENU, menu_id=menu.id)
         await client.delete(url)
         async with TestingSessionLocal() as session:

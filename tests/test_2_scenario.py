@@ -2,6 +2,7 @@ from http import HTTPStatus
 
 from httpx import AsyncClient
 
+from .conftest import Dish, Menu, Submenu
 from .constants import (
     DELETE_MENU,
     DELETE_SUBMENU,
@@ -16,7 +17,13 @@ from .constants import (
 from .utils import reverse
 
 
-async def test_menu_get_count_dishes_and_submenus(client: AsyncClient, menu, submenu, dish, dish_another):
+async def test_menu_get_count_dishes_and_submenus(
+    client: AsyncClient,
+    menu: Menu,
+    submenu: Submenu,
+    dish: Dish,
+    dish_another: Dish
+):
     """
     Проверка подсчета количества подменю и блюд при просморе меню.
 
@@ -35,7 +42,13 @@ async def test_menu_get_count_dishes_and_submenus(client: AsyncClient, menu, sub
     )
 
 
-async def test_submenu_get_count_dishes(client: AsyncClient, menu, submenu, dish, dish_another):
+async def test_submenu_get_count_dishes(
+    client: AsyncClient,
+    menu: Menu,
+    submenu: Submenu,
+    dish: Dish,
+    dish_another: Dish
+):
     """
     Проверка подсчета количества подменю и блюд при просморе субменю.
 
@@ -50,7 +63,13 @@ async def test_submenu_get_count_dishes(client: AsyncClient, menu, submenu, dish
     )
 
 
-async def test_submenus_list_after_delete_submenu(client: AsyncClient, menu, submenu, dish, dish_another):
+async def test_submenus_list_after_delete_submenu(
+    client: AsyncClient,
+    menu: Menu,
+    submenu: Submenu,
+    dish: Dish,
+    dish_another: Dish
+):
     """
     Проверка корректности удаления субменю.
 
@@ -67,7 +86,13 @@ async def test_submenus_list_after_delete_submenu(client: AsyncClient, menu, sub
     )
 
 
-async def test_dishes_list_after_delete_submenu(client: AsyncClient, menu, submenu, dish, dish_another):
+async def test_dishes_list_after_delete_submenu(
+    client: AsyncClient,
+    menu: Menu,
+    submenu: Submenu,
+    dish: Dish,
+    dish_another: Dish
+):
     """
     Проверка удаления связанных с субменю блюд после удаления субменю.
 
@@ -86,10 +111,10 @@ async def test_dishes_list_after_delete_submenu(client: AsyncClient, menu, subme
 
 async def test_menu_dishes_and_submenus_count_after_delete_submenu(
     client: AsyncClient,
-    menu,
-    submenu,
-    dish,
-    dish_another
+    menu: Menu,
+    submenu: Submenu,
+    dish: Dish,
+    dish_another: Dish
 ):
     """
     Проверка корректности подсчета количества субменю и блюд
@@ -112,7 +137,13 @@ async def test_menu_dishes_and_submenus_count_after_delete_submenu(
     )
 
 
-async def test_menu_list_after_menu_delete(client: AsyncClient, menu, submenu, dish, dish_another):
+async def test_menu_list_after_menu_delete(
+    client: AsyncClient,
+    menu: Menu,
+    submenu: Submenu,
+    dish: Dish,
+    dish_another: Dish
+):
     """Проверка корректности удаления меню."""
     menu_url = reverse(DELETE_MENU, menu_id=menu.id)
     response = await client.delete(menu_url)

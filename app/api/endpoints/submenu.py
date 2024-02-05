@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.custom_types import SubmenuAnnotatedDict, SubmenuCachedDict
 from app.core.db import get_async_session
 from app.models import Submenu
+from app.schemas.errors import SubmenuNotFoundError, URLDoesNotExistError
 from app.schemas.submenu import (
     SubmenuCreate,
     SubmenuDB,
@@ -21,7 +22,8 @@ router = APIRouter()
 
 @router.get(
     '/{menu_id}/submenus',
-    response_model=list[SubmenuWithCountDB]
+    response_model=list[SubmenuWithCountDB],
+    responses={404: {'model': URLDoesNotExistError}}
 )
 async def get_all_submenus(
     menu_id: uuid.UUID,
@@ -34,7 +36,8 @@ async def get_all_submenus(
 @router.post(
     '/{menu_id}/submenus',
     response_model=SubmenuDB,
-    status_code=HTTPStatus.CREATED
+    status_code=HTTPStatus.CREATED,
+    responses={404: {'model': URLDoesNotExistError}}
 )
 async def create_submenu(
     menu_id: uuid.UUID,
@@ -52,7 +55,8 @@ async def create_submenu(
 
 @router.get(
     '/{menu_id}/submenus/{submenu_id}',
-    response_model=SubmenuWithCountDB
+    response_model=SubmenuWithCountDB,
+    responses={404: {'model': SubmenuNotFoundError}}
 )
 async def get_submenu(
     menu_id: uuid.UUID,
@@ -65,7 +69,8 @@ async def get_submenu(
 
 @router.patch(
     '/{menu_id}/submenus/{submenu_id}',
-    response_model=SubmenuDB
+    response_model=SubmenuDB,
+    responses={404: {'model': SubmenuNotFoundError}}
 )
 async def update_submenu(
     menu_id: uuid.UUID,
@@ -84,7 +89,8 @@ async def update_submenu(
 
 @router.delete(
     '/{menu_id}/submenus/{submenu_id}',
-    response_model=SubmenuDB
+    response_model=SubmenuDB,
+    responses={404: {'model': SubmenuNotFoundError}}
 )
 async def delete_submenu(
     menu_id: uuid.UUID,

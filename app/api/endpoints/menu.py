@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.custom_types import MenuAnnotatedDict, MenuCachedDict
 from app.core.db import get_async_session
 from app.models import Menu
+from app.schemas.errors import MenuNotFoundError
 from app.schemas.menu import MenuCreate, MenuDB, MenuUpdate, MenuWithCountDB
 from app.services import menu_service
 
@@ -36,7 +37,11 @@ async def create_menu(
     return await menu_service.create(menu, session)
 
 
-@router.get('/{menu_id}', response_model=MenuWithCountDB)
+@router.get(
+    '/{menu_id}',
+    response_model=MenuWithCountDB,
+    responses={404: {'model': MenuNotFoundError}}
+)
 async def get_menu(
     menu_id: uuid.UUID,
     session: AsyncSession = Depends(get_async_session)
@@ -45,7 +50,11 @@ async def get_menu(
     return await menu_service.get(menu_id, session)
 
 
-@router.patch('/{menu_id}', response_model=MenuDB)
+@router.patch(
+    '/{menu_id}',
+    response_model=MenuDB,
+    responses={404: {'model': MenuNotFoundError}}
+)
 async def update_menu(
     menu_id: uuid.UUID,
     obj_in: MenuUpdate,
@@ -60,7 +69,11 @@ async def update_menu(
     return await menu_service.update(menu_id, obj_in, session)
 
 
-@router.delete('/{menu_id}', response_model=MenuDB)
+@router.delete(
+    '/{menu_id}',
+    response_model=MenuDB,
+    responses={404: {'model': MenuNotFoundError}}
+)
 async def delete_menu(
     menu_id: uuid.UUID,
     session: AsyncSession = Depends(get_async_session)

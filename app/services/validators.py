@@ -10,7 +10,7 @@ from app.models import Menu, Submenu
 
 class ErrorMessages:
     TITLE_DUPLICATE = 'Меню с таким названием уже существует'
-    URL_NOT_FOUND = 'url не найден'
+    URL_NOT_FOUND = 'url not found'
 
 
 async def check_menu_title_duplicate(
