@@ -1,7 +1,9 @@
+from starlette.datastructures import URLPath
+
 from .conftest import app
 
 
-def reverse(viewname: str, **kwargs):
+def reverse(viewname: str, **kwargs) -> URLPath:
     """
     Получение `url` по имени view-функции.
 

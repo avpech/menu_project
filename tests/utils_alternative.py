@@ -18,7 +18,7 @@ class PathNotFoundError(Exception):
         super().__init__(f'No route exists for name "{name}" and params {params}.')
 
 
-def reverse(viewname: str, args: list[Any] | None = None, kwargs: dict[str, Any] | None = None):
+def reverse(viewname: str, args: list[Any] | None = None, kwargs: dict[str, Any] | None = None) -> str:
     """
     Получение `url` по имени view-функции.
 
