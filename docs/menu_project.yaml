@@ -4,30 +4,40 @@ info:
   description: API сервис для меню
   version: 0.1.0
 paths:
-  /api/v1/menus/:
+  "/api/v1/menus/":
     get:
       tags:
-        - Меню
-      summary: Get All Menus
-      description: Получить список всех меню.
+      - Меню
+      - GET-запросы (получение списка объектов)
+      summary: Получение списка меню
+      description: |-
+        Получить список всех меню.
+
+        - **id**: Идентификатор меню.
+        - **title**: Название меню.
+        - **description**: Описание меню.
+        - **submenus_count**: Количество подменю в меню.
+        - **dishes_count**: Количество блюд в меню.
       operationId: get_all_menus_api_v1_menus__get
       responses:
         '200':
-          description: Successful Response
+          description: Успешное получение списка меню
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/MenuWithCountDB'
+                  "$ref": "#/components/schemas/MenuWithCountDB"
                 type: array
                 title: Response Get All Menus Api V1 Menus  Get
     post:
       tags:
-        - Меню
-      summary: Create Menu
+      - Меню
+      - POST-запросы (создание объекта)
+      summary: Создание нового меню
       description: |-
         Создать меню.
 
+        - **id**: Идентификатор меню.
         - **title**: Название меню.
         - **description**: Описание меню.
       operationId: create_menu_api_v1_menus__post
@@ -35,517 +45,714 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MenuCreate'
+              "$ref": "#/components/schemas/MenuCreate"
         required: true
       responses:
         '201':
-          description: Successful Response
+          description: Успешное создание нового меню
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MenuDB'
+                "$ref": "#/components/schemas/MenuDB"
         '422':
           description: Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  '/api/v1/menus/{menu_id}':
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/api/v1/menus/{menu_id}":
     get:
       tags:
-        - Меню
-      summary: Get Menu
-      description: Получить меню по id.
+      - Меню
+      - GET-запросы (получение определенного объекта)
+      summary: Получение меню
+      description: |-
+        Получить меню по id.
+
+        - **id**: Идентификатор меню.
+        - **title**: Название меню.
+        - **description**: Описание меню.
+        - **submenus_count**: Количество подменю в меню.
+        - **dishes_count**: Количество блюд в меню.
       operationId: get_menu_api_v1_menus__menu_id__get
       parameters:
-        - name: menu_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            title: Menu Id
+      - name: menu_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Идентификатор меню
+          title: Menu Id
+        description: Идентификатор меню
       responses:
         '200':
-          description: Successful Response
+          description: Успешное получение меню
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MenuWithCountDB'
+                "$ref": "#/components/schemas/MenuWithCountDB"
+        '404':
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/MenuNotFoundError"
+          description: Not Found
         '422':
           description: Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                "$ref": "#/components/schemas/HTTPValidationError"
     patch:
       tags:
-        - Меню
-      summary: Update Menu
+      - Меню
+      - PATCH-запросы (обновление объекта)
+      summary: Обновление существующего меню
       description: |-
         Изменить меню.
 
+        - **id**: Идентификатор меню.
         - **title**: Название меню.
         - **description**: Описание меню.
       operationId: update_menu_api_v1_menus__menu_id__patch
       parameters:
-        - name: menu_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            title: Menu Id
+      - name: menu_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Идентификатор меню
+          title: Menu Id
+        description: Идентификатор меню
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MenuUpdate'
+              "$ref": "#/components/schemas/MenuUpdate"
       responses:
         '200':
-          description: Successful Response
+          description: Успешное обновление меню
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MenuDB'
+                "$ref": "#/components/schemas/MenuDB"
+        '404':
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/MenuNotFoundError"
+          description: Not Found
         '422':
           description: Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                "$ref": "#/components/schemas/HTTPValidationError"
     delete:
       tags:
-        - Меню
-      summary: Delete Menu
-      description: Удалить меню.
+      - Меню
+      - DELETE-запросы (удаление объекта)
+      summary: Удаление меню
+      description: |-
+        Удалить меню.
+
+        - **id**: Идентификатор меню.
+        - **title**: Название меню.
+        - **description**: Описание меню.
       operationId: delete_menu_api_v1_menus__menu_id__delete
       parameters:
-        - name: menu_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            title: Menu Id
+      - name: menu_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Идентификатор меню
+          title: Menu Id
+        description: Идентификатор меню
       responses:
         '200':
-          description: Successful Response
+          description: Успешное удаление меню
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MenuDB'
+                "$ref": "#/components/schemas/MenuDB"
+        '404':
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/MenuNotFoundError"
+          description: Not Found
         '422':
           description: Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  '/api/v1/menus/{menu_id}/submenus':
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/api/v1/menus/{menu_id}/submenus":
     get:
       tags:
-        - Подменю
-      summary: Get All Submenus
-      description: Получить список всех подменю.
+      - Подменю
+      - GET-запросы (получение списка объектов)
+      summary: Получение списка подменю
+      description: |-
+        Получить список всех подменю.
+
+        - **id**: Идентификатор подменю.
+        - **title**: Название подменю.
+        - **description**: Описание подменю.
+        - **menu_id**: Идентификатор связанного меню.
+        - **dishes_count**: Количество блюд в подменю.
       operationId: get_all_submenus_api_v1_menus__menu_id__submenus_get
       parameters:
-        - name: menu_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            title: Menu Id
+      - name: menu_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Идентификатор меню
+          title: Menu Id
+        description: Идентификатор меню
       responses:
         '200':
-          description: Successful Response
+          description: Успешное получение списка подменю
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/SubmenuWithCountDB'
+                  "$ref": "#/components/schemas/SubmenuWithCountDB"
                 title: Response Get All Submenus Api V1 Menus  Menu Id  Submenus Get
+        '404':
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/URLDoesNotExistError"
+          description: Not Found
         '422':
           description: Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                "$ref": "#/components/schemas/HTTPValidationError"
     post:
       tags:
-        - Подменю
-      summary: Create Submenu
+      - Подменю
+      - POST-запросы (создание объекта)
+      summary: Создание нового подменю
       description: |-
         Создать подменю.
 
+        - **id**: Идентификатор подменю.
         - **title**: Название подменю.
         - **description**: Описание подменю.
+        - **menu_id**: Идентификатор связанного меню.
       operationId: create_submenu_api_v1_menus__menu_id__submenus_post
       parameters:
-        - name: menu_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            title: Menu Id
+      - name: menu_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Идентификатор меню
+          title: Menu Id
+        description: Идентификатор меню
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SubmenuCreate'
+              "$ref": "#/components/schemas/SubmenuCreate"
       responses:
         '201':
-          description: Successful Response
+          description: Успешное создание нового подменю
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SubmenuDB'
+                "$ref": "#/components/schemas/SubmenuDB"
+        '404':
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/URLDoesNotExistError"
+          description: Not Found
         '422':
           description: Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  '/api/v1/menus/{menu_id}/submenus/{submenu_id}':
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/api/v1/menus/{menu_id}/submenus/{submenu_id}":
     get:
       tags:
-        - Подменю
-      summary: Get Submenu
-      description: Получить подменю по id.
+      - Подменю
+      - GET-запросы (получение определенного объекта)
+      summary: Получение подменю
+      description: |-
+        Получить подменю по id.
+
+        - **id**: Идентификатор подменю.
+        - **title**: Название подменю.
+        - **description**: Описание подменю.
+        - **menu_id**: Идентификатор связанного меню.
+        - **dishes_count**: Количество блюд в подменю.
       operationId: get_submenu_api_v1_menus__menu_id__submenus__submenu_id__get
       parameters:
-        - name: menu_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            title: Menu Id
-        - name: submenu_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            title: Submenu Id
+      - name: menu_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Идентификатор меню
+          title: Menu Id
+        description: Идентификатор меню
+      - name: submenu_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Идентификатор подменю
+          title: Submenu Id
+        description: Идентификатор подменю
       responses:
         '200':
-          description: Successful Response
+          description: Успешное получение подменю
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SubmenuWithCountDB'
+                "$ref": "#/components/schemas/SubmenuWithCountDB"
+        '404':
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/SubmenuNotFoundError"
+          description: Not Found
         '422':
           description: Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                "$ref": "#/components/schemas/HTTPValidationError"
     patch:
       tags:
-        - Подменю
-      summary: Update Submenu
+      - Подменю
+      - PATCH-запросы (обновление объекта)
+      summary: Обновление существующего подменю
       description: |-
         Изменить подменю.
 
+        - **id**: Идентификатор подменю.
         - **title**: Название подменю.
         - **description**: Описание подменю.
+        - **menu_id**: Идентификатор связанного меню.
       operationId: update_submenu_api_v1_menus__menu_id__submenus__submenu_id__patch
       parameters:
-        - name: menu_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            title: Menu Id
-        - name: submenu_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            title: Submenu Id
+      - name: menu_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Идентификатор меню
+          title: Menu Id
+        description: Идентификатор меню
+      - name: submenu_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Идентификатор подменю
+          title: Submenu Id
+        description: Идентификатор подменю
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SubmenuUpdate'
+              "$ref": "#/components/schemas/SubmenuUpdate"
       responses:
         '200':
-          description: Successful Response
+          description: Успешное обновление подменю
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SubmenuDB'
+                "$ref": "#/components/schemas/SubmenuDB"
+        '404':
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/SubmenuNotFoundError"
+          description: Not Found
         '422':
           description: Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                "$ref": "#/components/schemas/HTTPValidationError"
     delete:
       tags:
-        - Подменю
-      summary: Delete Submenu
-      description: Удалить подменю.
+      - Подменю
+      - DELETE-запросы (удаление объекта)
+      summary: Удаление подменю
+      description: |-
+        Удалить подменю.
+
+        - **id**: Идентификатор подменю.
+        - **title**: Название подменю.
+        - **description**: Описание подменю.
+        - **menu_id**: Идентификатор связанного меню.
       operationId: delete_submenu_api_v1_menus__menu_id__submenus__submenu_id__delete
       parameters:
-        - name: menu_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            title: Menu Id
-        - name: submenu_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            title: Submenu Id
+      - name: menu_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Идентификатор меню
+          title: Menu Id
+        description: Идентификатор меню
+      - name: submenu_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Идентификатор подменю
+          title: Submenu Id
+        description: Идентификатор подменю
       responses:
         '200':
-          description: Successful Response
+          description: Успешное удаление подменю
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SubmenuDB'
+                "$ref": "#/components/schemas/SubmenuDB"
+        '404':
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/SubmenuNotFoundError"
+          description: Not Found
         '422':
           description: Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  '/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes':
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes":
     get:
       tags:
-        - Блюда
-      summary: Get All Dishes
-      description: Получить список всех блюд.
+      - Блюда
+      - GET-запросы (получение списка объектов)
+      summary: Получение списка блюд
+      description: |-
+        Получить список всех блюд.
+
+        - **id**: Идентификатор блюда.
+        - **title**: Название блюда.
+        - **description**: Описание блюда.
+        - **price**: Цена блюда.
+        - **submenu_id**: Идентификатор связанного подменю.
       operationId: get_all_dishes_api_v1_menus__menu_id__submenus__submenu_id__dishes_get
       parameters:
-        - name: menu_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            title: Menu Id
-        - name: submenu_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            title: Submenu Id
+      - name: menu_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Идентификатор меню
+          title: Menu Id
+        description: Идентификатор меню
+      - name: submenu_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Идентификатор подменю
+          title: Submenu Id
+        description: Идентификатор подменю
       responses:
         '200':
-          description: Successful Response
+          description: Успешное получение списка блюд
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/DishDB'
-                title: >-
-                  Response Get All Dishes Api V1 Menus  Menu Id  Submenus
-                  Submenu Id  Dishes Get
+                  "$ref": "#/components/schemas/DishDB"
+                title: Response Get All Dishes Api V1 Menus  Menu Id  Submenus  Submenu
+                  Id  Dishes Get
+        '404':
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/URLDoesNotExistError"
+          description: Not Found
         '422':
           description: Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                "$ref": "#/components/schemas/HTTPValidationError"
     post:
       tags:
-        - Блюда
-      summary: Create Dish
+      - Блюда
+      - POST-запросы (создание объекта)
+      summary: Создание нового блюда
       description: |-
         Добавить блюдо.
 
+        - **id**: Идентификатор блюда.
         - **title**: Название блюда.
         - **description**: Описание блюда.
         - **price**: Цена блюда.
+        - **submenu_id**: Идентификатор связанного подменю.
       operationId: create_dish_api_v1_menus__menu_id__submenus__submenu_id__dishes_post
       parameters:
-        - name: menu_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            title: Menu Id
-        - name: submenu_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            title: Submenu Id
+      - name: menu_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Идентификатор меню
+          title: Menu Id
+        description: Идентификатор меню
+      - name: submenu_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Идентификатор подменю
+          title: Submenu Id
+        description: Идентификатор подменю
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DishCreate'
+              "$ref": "#/components/schemas/DishCreate"
       responses:
         '201':
-          description: Successful Response
+          description: Успешное создание нового блюда
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DishDB'
+                "$ref": "#/components/schemas/DishDB"
+        '404':
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/URLDoesNotExistError"
+          description: Not Found
         '422':
           description: Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  '/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}':
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}":
     get:
       tags:
-        - Блюда
-      summary: Get Dish
-      description: Получить блюдо по id.
-      operationId: >-
-        get_dish_api_v1_menus__menu_id__submenus__submenu_id__dishes__dish_id__get
+      - Блюда
+      - GET-запросы (получение определенного объекта)
+      summary: Получение блюда
+      description: |-
+        Получить блюдо по id.
+
+        - **id**: Идентификатор блюда.
+        - **title**: Название блюда.
+        - **description**: Описание блюда.
+        - **price**: Цена блюда.
+        - **submenu_id**: Идентификатор связанного подменю.
+      operationId: get_dish_api_v1_menus__menu_id__submenus__submenu_id__dishes__dish_id__get
       parameters:
-        - name: menu_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            title: Menu Id
-        - name: submenu_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            title: Submenu Id
-        - name: dish_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            title: Dish Id
+      - name: menu_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Идентификатор меню
+          title: Menu Id
+        description: Идентификатор меню
+      - name: submenu_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Идентификатор подменю
+          title: Submenu Id
+        description: Идентификатор подменю
+      - name: dish_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Идентификатор блюда
+          title: Dish Id
+        description: Идентификатор блюда
       responses:
         '200':
-          description: Successful Response
+          description: Успешное получение блюда
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DishDB'
+                "$ref": "#/components/schemas/DishDB"
+        '404':
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/DishNotFoundError"
+          description: Not Found
         '422':
           description: Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                "$ref": "#/components/schemas/HTTPValidationError"
     patch:
       tags:
-        - Блюда
-      summary: Update Dish
+      - Блюда
+      - PATCH-запросы (обновление объекта)
+      summary: Обновление существующего блюда
       description: |-
         Изменить блюдо.
 
+        - **id**: Идентификатор блюда.
         - **title**: Название блюда.
         - **description**: Описание блюда.
         - **price**: Цена блюда.
-      operationId: >-
-        update_dish_api_v1_menus__menu_id__submenus__submenu_id__dishes__dish_id__patch
+        - **submenu_id**: Идентификатор связанного подменю.
+      operationId: update_dish_api_v1_menus__menu_id__submenus__submenu_id__dishes__dish_id__patch
       parameters:
-        - name: menu_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            title: Menu Id
-        - name: submenu_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            title: Submenu Id
-        - name: dish_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            title: Dish Id
+      - name: menu_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Идентификатор меню
+          title: Menu Id
+        description: Идентификатор меню
+      - name: submenu_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Идентификатор подменю
+          title: Submenu Id
+        description: Идентификатор подменю
+      - name: dish_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Идентификатор блюда
+          title: Dish Id
+        description: Идентификатор блюда
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DishUpdate'
+              "$ref": "#/components/schemas/DishUpdate"
       responses:
         '200':
-          description: Successful Response
+          description: Успешное обновление блюда
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DishDB'
+                "$ref": "#/components/schemas/DishDB"
+        '404':
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/DishNotFoundError"
+          description: Not Found
         '422':
           description: Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                "$ref": "#/components/schemas/HTTPValidationError"
     delete:
       tags:
-        - Блюда
-      summary: Delete Dish
-      description: Удалить блюдо.
-      operationId: >-
-        delete_dish_api_v1_menus__menu_id__submenus__submenu_id__dishes__dish_id__delete
+      - Блюда
+      - DELETE-запросы (удаление объекта)
+      summary: Удаление блюда
+      description: |-
+        Удалить блюдо.
+
+        - **id**: Идентификатор блюда.
+        - **title**: Название блюда.
+        - **description**: Описание блюда.
+        - **price**: Цена блюда.
+        - **submenu_id**: Идентификатор связанного подменю.
+      operationId: delete_dish_api_v1_menus__menu_id__submenus__submenu_id__dishes__dish_id__delete
       parameters:
-        - name: menu_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            title: Menu Id
-        - name: submenu_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            title: Submenu Id
-        - name: dish_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            title: Dish Id
+      - name: menu_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Идентификатор меню
+          title: Menu Id
+        description: Идентификатор меню
+      - name: submenu_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Идентификатор подменю
+          title: Submenu Id
+        description: Идентификатор подменю
+      - name: dish_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Идентификатор блюда
+          title: Dish Id
+        description: Идентификатор блюда
       responses:
         '200':
-          description: Successful Response
+          description: Успешное удаление блюда
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DishDB'
+                "$ref": "#/components/schemas/DishDB"
+        '404':
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/DishNotFoundError"
+          description: Not Found
         '422':
           description: Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+                "$ref": "#/components/schemas/HTTPValidationError"
 components:
   schemas:
     DishCreate:
@@ -554,21 +761,28 @@ components:
           type: string
           maxLength: 50
           title: Title
+          description: Название блюда
+          examples:
+          - Название блюда
         description:
           type: string
           maxLength: 1000
           title: Description
+          description: Описание блюда
+          examples:
+          - Описание блюда
         price:
           type: string
           title: Price
+          description: Цена блюда. Должно быть неотрицательное значение
           examples:
-            - '20.50'
+          - '20.50'
       additionalProperties: false
       type: object
       required:
-        - title
-        - description
-        - price
+      - title
+      - description
+      - price
       title: DishCreate
       description: Схема для создания блюд.
     DishDB:
@@ -580,48 +794,75 @@ components:
         title:
           type: string
           title: Title
+          description: Название блюда
+          examples:
+          - Название блюда
         description:
           type: string
           title: Description
+          description: Описание блюда
+          examples:
+          - Описание блюда
         price:
           type: string
           title: Price
+          description: Цена блюда. Должно быть неотрицательное значение
           examples:
-            - '20.50'
+          - '20.50'
         submenu_id:
           type: string
           format: uuid
           title: Submenu Id
+          description: id связанного подменю
       type: object
       required:
-        - id
-        - title
-        - description
-        - price
-        - submenu_id
+      - id
+      - title
+      - description
+      - price
+      - submenu_id
       title: DishDB
       description: Схема для отображения данных о блюдах.
+    DishNotFoundError:
+      properties:
+        detail:
+          type: string
+          title: Detail
+          examples:
+          - dish not found
+      type: object
+      required:
+      - detail
+      title: DishNotFoundError
+      description: Блюдо не найдено.
     DishUpdate:
       properties:
         title:
           anyOf:
-            - type: string
-              maxLength: 50
-            - type: 'null'
+          - type: string
+            maxLength: 50
+          - type: 'null'
           title: Title
+          description: Название блюда
+          examples:
+          - Название блюда
         description:
           anyOf:
-            - type: string
-              maxLength: 1000
-            - type: 'null'
+          - type: string
+            maxLength: 1000
+          - type: 'null'
           title: Description
+          description: Описание блюда
+          examples:
+          - Описание блюда
         price:
           anyOf:
-            - type: string
-            - type: 'null'
+          - type: string
+          - type: 'null'
           title: Price
+          description: Цена блюда. Должно быть неотрицательное значение
           examples:
-            - '20.50'
+          - '20.50'
       additionalProperties: false
       type: object
       title: DishUpdate
@@ -630,7 +871,7 @@ components:
       properties:
         detail:
           items:
-            $ref: '#/components/schemas/ValidationError'
+            "$ref": "#/components/schemas/ValidationError"
           type: array
           title: Detail
       type: object
@@ -641,15 +882,21 @@ components:
           type: string
           maxLength: 50
           title: Title
+          description: Название меню
+          examples:
+          - Название меню
         description:
           type: string
           maxLength: 200
           title: Description
+          description: Описание меню
+          examples:
+          - Описание меню
       additionalProperties: false
       type: object
       required:
-        - title
-        - description
+      - title
+      - description
       title: MenuCreate
       description: Схема для создания меню.
     MenuDB:
@@ -661,30 +908,54 @@ components:
         title:
           type: string
           title: Title
+          description: Название меню
+          examples:
+          - Название меню
         description:
           type: string
           title: Description
+          description: Описание меню
+          examples:
+          - Описание меню
       type: object
       required:
-        - id
-        - title
-        - description
+      - id
+      - title
+      - description
       title: MenuDB
       description: Схема для отображения данных о меню.
+    MenuNotFoundError:
+      properties:
+        detail:
+          type: string
+          title: Detail
+          examples:
+          - menu not found
+      type: object
+      required:
+      - detail
+      title: MenuNotFoundError
+      description: Меню не найдено.
     MenuUpdate:
       properties:
         title:
           anyOf:
-            - type: string
-              maxLength: 50
-            - type: 'null'
+          - type: string
+            maxLength: 50
+          - type: 'null'
           title: Title
+          description: Название меню
+          examples:
+          - Название меню
         description:
           anyOf:
-            - type: string
-              maxLength: 200
-            - type: 'null'
+          - type: string
+            maxLength: 200
+          - type: 'null'
           title: Description
+          description: Описание меню
+          examples:
+          - Описание меню
       additionalProperties: false
       type: object
       title: MenuUpdate
@@ -698,22 +969,30 @@ components:
         title:
           type: string
           title: Title
+          description: Название меню
+          examples:
+          - Название меню
         description:
           type: string
           title: Description
-        dishes_count:
-          type: integer
-          title: Dishes Count
+          description: Описание меню
+          examples:
+          - Описание меню
         submenus_count:
           type: integer
           title: Submenus Count
+          description: Количество подменю в меню
+        dishes_count:
+          type: integer
+          title: Dishes Count
+          description: Количество блюд в меню
       type: object
       required:
-        - id
-        - title
-        - description
-        - dishes_count
-        - submenus_count
+      - id
+      - title
+      - description
+      - submenus_count
+      - dishes_count
       title: MenuWithCountDB
       description: Расширенная схема для отображения данных о меню.
     SubmenuCreate:
@@ -722,15 +1001,21 @@ components:
           type: string
           maxLength: 50
           title: Title
+          description: Название подменю
+          examples:
+          - Название подменю
         description:
           type: string
           maxLength: 200
           title: Description
+          description: Описание подменю
+          examples:
+          - Описание подменю
       additionalProperties: false
       type: object
       required:
-        - title
-        - description
+      - title
+      - description
       title: SubmenuCreate
       description: Схема для создания подменю.
     SubmenuDB:
@@ -742,35 +1027,60 @@ components:
         title:
           type: string
           title: Title
+          description: Название подменю
+          examples:
+          - Название подменю
         description:
           type: string
           title: Description
+          description: Описание подменю
+          examples:
+          - Описание подменю
         menu_id:
           type: string
           format: uuid
           title: Menu Id
+          description: id связанного меню
       type: object
       required:
-        - id
-        - title
-        - description
-        - menu_id
+      - id
+      - title
+      - description
+      - menu_id
       title: SubmenuDB
       description: Схема для отображения данных о подменю.
+    SubmenuNotFoundError:
+      properties:
+        detail:
+          type: string
+          title: Detail
+          examples:
+          - submenu not found
+      type: object
+      required:
+      - detail
+      title: SubmenuNotFoundError
+      description: Субменю не найдено.
     SubmenuUpdate:
       properties:
         title:
           anyOf:
-            - type: string
-              maxLength: 50
-            - type: 'null'
+          - type: string
+            maxLength: 50
+          - type: 'null'
           title: Title
+          description: Название подменю
+          examples:
+          - Название подменю
         description:
           anyOf:
-            - type: string
-              maxLength: 200
-            - type: 'null'
+          - type: string
+            maxLength: 200
+          - type: 'null'
           title: Description
+          description: Описание подменю
+          examples:
+          - Описание подменю
       additionalProperties: false
       type: object
       title: SubmenuUpdate
@@ -784,32 +1094,52 @@ components:
         title:
           type: string
           title: Title
+          description: Название подменю
+          examples:
+          - Название подменю
         description:
           type: string
           title: Description
+          description: Описание подменю
+          examples:
+          - Описание подменю
         menu_id:
           type: string
           format: uuid
           title: Menu Id
+          description: id связанного меню
         dishes_count:
           type: integer
           title: Dishes Count
+          description: Количество блюд в подменю
       type: object
       required:
-        - id
-        - title
-        - description
-        - menu_id
-        - dishes_count
+      - id
+      - title
+      - description
+      - menu_id
+      - dishes_count
       title: SubmenuWithCountDB
       description: Расширенная схема для отображения данных о подменю.
+    URLDoesNotExistError:
+      properties:
+        detail:
+          type: string
+          title: Detail
+          examples:
+          - url not found
+      type: object
+      required:
+      - detail
+      title: URLDoesNotExistError
+      description: URL не найден.
     ValidationError:
       properties:
         loc:
           items:
             anyOf:
-              - type: string
-              - type: integer
+            - type: string
+            - type: integer
           type: array
           title: Location
         msg:
@@ -820,7 +1150,19 @@ components:
           title: Error Type
       type: object
       required:
-        - loc
-        - msg
-        - type
+      - loc
+      - msg
+      - type
       title: ValidationError
+tags:
+- name: Меню
+  description: Взаимодействие с меню.
+- name: Подменю
+  description: Взаимодействие с подменю.
+- name: Блюда
+  description: Взаимодействие с блюдами.
+- name: GET-запросы (получение списка объектов)
+- name: GET-запросы (получение определенного объекта)
+- name: POST-запросы (создание объекта)
+- name: PATCH-запросы (обновление объекта)
+- name: DELETE-запросы (удаление объекта)

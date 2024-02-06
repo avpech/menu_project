@@ -3,6 +3,7 @@ from typing import TypedDict
 
 
 class MenuAnnotatedDict(TypedDict):
+    """Словарь для данных о меню с аннотациями."""
     id: uuid.UUID
     title: str
     description: str
@@ -11,6 +12,7 @@ class MenuAnnotatedDict(TypedDict):
 
 
 class MenuCachedDict(TypedDict):
+    """Словарь для кэшированных данных о меню."""
     id: str
     title: str
     description: str
@@ -19,6 +21,7 @@ class MenuCachedDict(TypedDict):
 
 
 class SubmenuAnnotatedDict(TypedDict):
+    """Словарь для данных о подменю с аннотациями."""
     id: uuid.UUID
     title: str
     description: str
@@ -27,6 +30,7 @@ class SubmenuAnnotatedDict(TypedDict):
 
 
 class SubmenuCachedDict(TypedDict):
+    """Словарь для кэшированных данных о подменю."""
     id: str
     title: str
     description: str
@@ -35,6 +39,7 @@ class SubmenuCachedDict(TypedDict):
 
 
 class DishCacheDict(TypedDict):
+    """Словарь для кэшированных данных о блюде."""
     id: str
     title: str
     description: str
