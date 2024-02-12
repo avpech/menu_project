@@ -2,11 +2,12 @@ import asyncio
 
 from celery import Celery
 
+from app.core.config import broker_url
 from app.core.db import AsyncSessionLocal
 from app.crud import menu_crud
 from app.tasks.utils import delete_inconsistent_db_data, get_table_data, update_db_data
 
-celery_app = Celery('hello', broker='amqp://guest:guest@localhost:5672')
+celery_app = Celery('hello', broker=broker_url)
 
 
 async def update_db():

@@ -35,6 +35,17 @@ services:
     env_file:
       - ./.env
 
+  rabbitmq:
+    container_name: rabbit_menu
+    restart: always
+    image: rabbitmq:latest
+    ports:
+      - "5672:5672"
+    networks:
+      - menu_network
+    env_file:
+      - ./.env
+
   api_menu:
     build:
       context: .
@@ -52,6 +63,35 @@ services:
       postgres_menu:
         condition: service_healthy
       redis_menu:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+    env_file:
+      - ./.env
+
+  celery_worker_beat:
+    container_name: celery_menu
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      DB_HOST: "postgres_menu"
+      REDIS_HOST: "redis_menu"
+      RABBITMQ_HOST: "rabbitmq"
+    entrypoint: sh -c "celery -A app.tasks.celery_tasks:celery_app worker --beat --loglevel=info"
+    networks:
+      - menu_network
+    volumes:
+      - ./app/admin/Menu.xlsx:/src/app/admin/Menu.xlsx
+    depends_on:
+      postgres_menu:
+        condition: service_healthy
+      api_menu:
+        condition: service_started
+      redis_menu:
+        condition: service_started
+      rabbitmq:
         condition: service_started
     env_file:
       - ./.env

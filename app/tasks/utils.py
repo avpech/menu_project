@@ -181,7 +181,7 @@ async def _update_db_dishes(table_submenu, db_menu, db_submenu, submenu_created,
                 DishCreate(
                     title=table_dish.title,
                     description=table_dish.description,
-                    price=table_dish.price
+                    price=str(table_dish.price)
                 ),
                 session,
                 submenu_id=db_submenu.id
@@ -197,8 +197,8 @@ async def _update_db_dishes(table_submenu, db_menu, db_submenu, submenu_created,
             to_update = {}
             if table_dish.description != db_dish.description:
                 to_update['description'] = table_dish.description
-            if float(table_dish.price) != db_dish.price:
-                to_update['price'] = table_dish.price
+            if table_dish.price != db_dish.price:
+                to_update['price'] = str(table_dish.price)
             if to_update:
                 await dish_crud.update(
                     db_dish,

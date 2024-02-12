@@ -13,6 +13,10 @@ class Settings(BaseSettings):
     redis_host: str = 'localhost'
     redis_port: int = 6379
     cache_lifetime: int = 60
+    rabbitmq_default_user: str = 'guest'
+    rabbitmq_default_pass: str = 'guest'
+    rabbitmq_host: str = 'localhost'
+    rabbitmq_port: int = 5672
     google_sheet_id: str
     use_google_sheets: bool = False
     type: str | None = None
@@ -33,4 +37,9 @@ settings = Settings()
 db_url = (
     f'postgresql+asyncpg://{settings.db_user}:{settings.db_password}'
     f'@{settings.db_host}:{settings.db_port}/{settings.db_name}'
+)
+
+broker_url = (
+    f'amqp://{settings.rabbitmq_default_user}:{settings.rabbitmq_default_pass}'
+    f'@{settings.rabbitmq_host}:{settings.rabbitmq_port}'
 )
