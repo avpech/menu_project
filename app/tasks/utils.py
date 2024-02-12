@@ -177,7 +177,7 @@ async def _update_db_dishes(table_submenu, db_menu, db_submenu, submenu_created,
                     db_dish = dish
                     break
         if db_dish is None:
-            await dish_crud.create(
+            db_dish = await dish_crud.create(
                 DishCreate(
                     title=table_dish.title,
                     description=table_dish.description,
