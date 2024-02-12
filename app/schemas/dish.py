@@ -82,5 +82,10 @@ class DishDB(BaseModel):
     submenu_id: uuid.UUID = Field(description='id связанного подменю')
 
     @field_validator('price', mode='before')
+    @classmethod
     def convert_price_to_str(cls, value: float) -> str:
         return f'{value:.{PRICE_SCALE}f}'
+
+
+class DishDiscountDB(DishDB):
+    discount: str = Field(description='Размер скидки', examples=['0%'])

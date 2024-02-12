@@ -3,6 +3,8 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.custom_types import DishDiscountDict
+from app.core.redis_cache import DISCOUNT_PREFIX, cache
 from app.crud.base import CRUDBase
 from app.models import Dish, Submenu
 from app.schemas.dish import DishCreate, DishUpdate
@@ -18,14 +20,79 @@ class CRUDDish(
         menu_id: uuid.UUID,
         submenu_id: uuid.UUID,
         session: AsyncSession
-    ) -> list[Dish]:
+    ) -> list[DishDiscountDict]:
         """Получение списка отфильтрованных по `menu_id` и `submenu_id` объектов."""
         db_objs = await session.execute(
             select(Dish)
             .join(Submenu, Submenu.id == Dish.submenu_id)
             .where(Dish.submenu_id == submenu_id, Submenu.menu_id == menu_id)
         )
-        return db_objs.scalars().all()
+        dishes: list[DishDiscountDict] = []
+        for dish in db_objs.scalars():
+            discount = await cache.get(f'{DISCOUNT_PREFIX}:{menu_id}:{submenu_id}:{dish.id}')
+            discount = discount or 0
+            dishes.append(
+                {
+                    'id': dish.id,
+                    'title': dish.title,
+                    'description': dish.description,
+                    'price': dish.price * (1 - discount),
+                    'discount': f'{(discount * 100):.0f}%',
+                    'submenu_id': dish.submenu_id
+                }
+            )
+        return dishes
+
+    async def get_filtered_discounted(
+        self,
+        menu_id: uuid.UUID,
+        submenu_id: uuid.UUID,
+        obj_id: uuid.UUID,
+        session: AsyncSession,
+    ) -> DishDiscountDict | None:
+        """
+        Получение объекта по id, если он связан с соответствующими меню и субменю.
+
+        Добавляется поле `discount`. Цена отображается со скидкой.
+        """
+        dish = await session.execute(
+            select(Dish)
+            .join(Submenu, Submenu.id == Dish.submenu_id)
+            .where(
+                Dish.id == obj_id,
+                Dish.submenu_id == submenu_id,
+                Submenu.menu_id == menu_id
+            )
+        )
+        dish = dish.scalars().first()
+        if dish is None:
+            return None
+        discount = await cache.get(f'{DISCOUNT_PREFIX}:{menu_id}:{submenu_id}:{dish.id}')
+        discount = discount or 0
+        return {
+            'id': dish.id,
+            'title': dish.title,
+            'description': dish.description,
+            'price': dish.price * (1 - discount),
+            'discount': f'{(discount * 100):.0f}%',
+            'submenu_id': dish.submenu_id
+        }
+
+    async def get_filtered_discounted_or_404(
+        self,
+        menu_id: uuid.UUID,
+        submenu_id: uuid.UUID,
+        obj_id: uuid.UUID,
+        session: AsyncSession,
+    ) -> DishDiscountDict:
+        """
+        Получение объекта по id, если он связан с соответствующими меню и субменю.
+
+        Добавляется поле `discount`. Цена отображается со скидкой.
+        При отсутствии объекта вызывает HTTPException со статусом 404.
+        """
+        obj = await self.get_filtered_discounted(menu_id, submenu_id, obj_id, session)
+        return self._exists_or_404(obj, detail='dish not found')
 
     async def get_filtered(
         self,

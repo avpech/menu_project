@@ -143,7 +143,7 @@ async def dish_another(submenu: Submenu) -> Dish:
     """Альтернативная фикстура блюда."""
     async with TestingSessionLocal() as session:
         dish = Dish(
-            title='dish_title',
+            title='dish_another_title',
             description='dish_description',
             price=10.0,
             submenu_id=submenu.id

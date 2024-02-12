@@ -1,8 +1,8 @@
 """init
 
-Revision ID: 5a5b22bfdc44
+Revision ID: 73bfa9d984b0
 Revises:
-Create Date: 2024-01-22 02:12:07.121552
+Create Date: 2024-02-11 12:01:16.994620
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = '5a5b22bfdc44'
+revision: str = '73bfa9d984b0'
 down_revision: str | None = None
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
@@ -33,7 +33,8 @@ def upgrade() -> None:
                     sa.Column('menu_id', sa.Uuid(), nullable=False),
                     sa.Column('id', sa.Uuid(), nullable=False),
                     sa.ForeignKeyConstraint(['menu_id'], ['menu.id'], ),
-                    sa.PrimaryKeyConstraint('id')
+                    sa.PrimaryKeyConstraint('id'),
+                    sa.UniqueConstraint('title')
                     )
     op.create_table('dish',
                     sa.Column('title', sa.String(length=50), nullable=False),
@@ -43,7 +44,8 @@ def upgrade() -> None:
                     sa.Column('id', sa.Uuid(), nullable=False),
                     sa.CheckConstraint('price >= 0', name='price_not_negative'),
                     sa.ForeignKeyConstraint(['submenu_id'], ['submenu.id'], ),
-                    sa.PrimaryKeyConstraint('id')
+                    sa.PrimaryKeyConstraint('id'),
+                    sa.UniqueConstraint('title')
                     )
     # ### end Alembic commands ###
 

@@ -2,7 +2,7 @@ import uuid
 from http import HTTPStatus
 from typing import Sequence
 
-from fastapi import APIRouter, Depends, Path
+from fastapi import APIRouter, BackgroundTasks, Depends, Path
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import (
@@ -13,11 +13,22 @@ from app.core.constants import (
     PATCH_TAG,
     POST_TAG,
 )
-from app.core.custom_types import MenuAnnotatedDict, MenuCachedDict
+from app.core.custom_types import (
+    MenuAnnotatedDict,
+    MenuCachedDict,
+    MenuCachedNestedSubmenusDict,
+    MenuNestedSubmenusDict,
+)
 from app.core.db import get_async_session
 from app.models import Menu
 from app.schemas.errors import MenuNotFoundError
-from app.schemas.menu import MenuCreate, MenuDB, MenuUpdate, MenuWithCountDB
+from app.schemas.menu import (
+    MenuCreate,
+    MenuDB,
+    MenuNestedSubmenusDB,
+    MenuUpdate,
+    MenuWithCountDB,
+)
 from app.services import menu_service
 
 router = APIRouter()
@@ -45,6 +56,20 @@ async def get_all_menus(
     return await menu_service.get_list(session)
 
 
+@router.get(
+    '/all',
+    response_model=list[MenuNestedSubmenusDB],
+    summary='Получение списка меню с вложенными подменю и блюдами',
+    response_description='Успешное получение списка меню',
+    tags=[GET_LIST_TAG]
+)
+async def get_all_nested(
+    session: AsyncSession = Depends(get_async_session)
+) -> Sequence[MenuNestedSubmenusDict | MenuCachedNestedSubmenusDict]:
+    """Получить список всех меню с вложенными подменю и блюдами."""
+    return await menu_service.get_all_nested(session)
+
+
 @router.post(
     '/',
     response_model=MenuDB,
@@ -55,7 +80,9 @@ async def get_all_menus(
 )
 async def create_menu(
     menu: MenuCreate,
-    session: AsyncSession = Depends(get_async_session)
+    session: AsyncSession = Depends(get_async_session),
+    *,
+    background_tasks: BackgroundTasks,
 ) -> Menu:
     """
     Создать меню.
@@ -64,7 +91,7 @@ async def create_menu(
     - **title**: Название меню.
     - **description**: Описание меню.
     """
-    return await menu_service.create(menu, session)
+    return await menu_service.create(menu, session, background_tasks)
 
 
 @router.get(
@@ -102,7 +129,9 @@ async def get_menu(
 async def update_menu(
     obj_in: MenuUpdate,
     menu_id: uuid.UUID = Path(..., description=MENU_ID_DESCR),
-    session: AsyncSession = Depends(get_async_session)
+    session: AsyncSession = Depends(get_async_session),
+    *,
+    background_tasks: BackgroundTasks
 ) -> Menu:
     """
     Изменить меню.
@@ -111,7 +140,7 @@ async def update_menu(
     - **title**: Название меню.
     - **description**: Описание меню.
     """
-    return await menu_service.update(menu_id, obj_in, session)
+    return await menu_service.update(menu_id, obj_in, session, background_tasks)
 
 
 @router.delete(
@@ -124,7 +153,9 @@ async def update_menu(
 )
 async def delete_menu(
     menu_id: uuid.UUID = Path(..., description=MENU_ID_DESCR),
-    session: AsyncSession = Depends(get_async_session)
+    session: AsyncSession = Depends(get_async_session),
+    *,
+    background_tasks: BackgroundTasks
 ) -> Menu:
     """
     Удалить меню.
@@ -133,4 +164,4 @@ async def delete_menu(
     - **title**: Название меню.
     - **description**: Описание меню.
     """
-    return await menu_service.delete(menu_id, session)
+    return await menu_service.delete(menu_id, session, background_tasks)

@@ -5,11 +5,13 @@ from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import Menu, Submenu
+from app.models import Dish, Menu, Submenu
 
 
 class ErrorMessages:
-    TITLE_DUPLICATE = 'Меню с таким названием уже существует'
+    MENU_TITLE_DUPLICATE = 'Меню с таким названием уже существует'
+    SUBMENU_TITLE_DUPLICATE = 'Субменю с таким названием уже существует'
+    DISH_TITLE_DUPLICATE = 'Блюдо с таким названием уже существует'
     URL_NOT_FOUND = 'url not found'
 
 
@@ -27,7 +29,43 @@ async def check_menu_title_duplicate(
     if menu_title_exists.scalar():
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
-            detail=ErrorMessages.TITLE_DUPLICATE,
+            detail=ErrorMessages.MENU_TITLE_DUPLICATE,
+        )
+
+
+async def check_submenu_title_duplicate(
+    submenu_title: str,
+    session: AsyncSession,
+) -> None:
+    """Проверка на отсутствие субменю с переданным названием в базе данных."""
+    exists_criteria = (
+        select(Submenu).where(Submenu.title == submenu_title)
+    ).exists()
+    submenu_title_exists = await session.execute(
+        select(True).where(exists_criteria)
+    )
+    if submenu_title_exists.scalar():
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail=ErrorMessages.SUBMENU_TITLE_DUPLICATE,
+        )
+
+
+async def check_dish_title_duplicate(
+    dish_title: str,
+    session: AsyncSession,
+) -> None:
+    """Проверка на отсутствие блюда с переданным названием в базе данных."""
+    exists_criteria = (
+        select(Dish).where(Dish.title == dish_title)
+    ).exists()
+    dish_title_exists = await session.execute(
+        select(True).where(exists_criteria)
+    )
+    if dish_title_exists.scalar():
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail=ErrorMessages.DISH_TITLE_DUPLICATE,
         )
 
 

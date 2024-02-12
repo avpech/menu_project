@@ -2,7 +2,7 @@ import uuid
 from http import HTTPStatus
 from typing import Sequence
 
-from fastapi import APIRouter, Depends, Path
+from fastapi import APIRouter, BackgroundTasks, Depends, Path
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import (
@@ -65,7 +65,9 @@ async def get_all_submenus(
 async def create_submenu(
     submenu: SubmenuCreate,
     menu_id: uuid.UUID = Path(..., description=MENU_ID_DESCR),
-    session: AsyncSession = Depends(get_async_session)
+    session: AsyncSession = Depends(get_async_session),
+    *,
+    background_tasks: BackgroundTasks
 ) -> Submenu:
     """
     Создать подменю.
@@ -75,7 +77,7 @@ async def create_submenu(
     - **description**: Описание подменю.
     - **menu_id**: Идентификатор связанного меню.
     """
-    return await submenu_service.create(menu_id, submenu, session)
+    return await submenu_service.create(menu_id, submenu, session, background_tasks)
 
 
 @router.get(
@@ -115,7 +117,9 @@ async def update_submenu(
     obj_in: SubmenuUpdate,
     menu_id: uuid.UUID = Path(..., description=MENU_ID_DESCR),
     submenu_id: uuid.UUID = Path(..., description=SUBMENU_ID_DESCR),
-    session: AsyncSession = Depends(get_async_session)
+    session: AsyncSession = Depends(get_async_session),
+    *,
+    background_tasks: BackgroundTasks
 ) -> Submenu:
     """
     Изменить подменю.
@@ -125,7 +129,7 @@ async def update_submenu(
     - **description**: Описание подменю.
     - **menu_id**: Идентификатор связанного меню.
     """
-    return await submenu_service.update(menu_id, submenu_id, obj_in, session)
+    return await submenu_service.update(menu_id, submenu_id, obj_in, session, background_tasks)
 
 
 @router.delete(
@@ -139,7 +143,9 @@ async def update_submenu(
 async def delete_submenu(
     menu_id: uuid.UUID = Path(..., description=MENU_ID_DESCR),
     submenu_id: uuid.UUID = Path(..., description=SUBMENU_ID_DESCR),
-    session: AsyncSession = Depends(get_async_session)
+    session: AsyncSession = Depends(get_async_session),
+    *,
+    background_tasks: BackgroundTasks
 ) -> Submenu:
     """
     Удалить подменю.
@@ -149,4 +155,4 @@ async def delete_submenu(
     - **description**: Описание подменю.
     - **menu_id**: Идентификатор связанного меню.
     """
-    return await submenu_service.delete(menu_id, submenu_id, session)
+    return await submenu_service.delete(menu_id, submenu_id, session, background_tasks)

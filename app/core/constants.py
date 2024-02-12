@@ -1,3 +1,7 @@
+from pathlib import Path
+
+BASE_DIR = Path(__file__).parent.parent
+
 MENU_TITLE_MAX_LEN = 50
 MENU_DESCR_MAX_LEN = 200
 SUBMENU_TITLE_MAX_LEN = 50

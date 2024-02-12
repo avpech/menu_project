@@ -45,17 +45,24 @@ class Menu(Base):
 
 class Submenu(Base):
     """Модель для подменю."""
-    title: Mapped[str] = mapped_column(String(SUBMENU_TITLE_MAX_LEN))
+    title: Mapped[str] = mapped_column(
+        String(SUBMENU_TITLE_MAX_LEN),
+        unique=True
+    )
     description: Mapped[str] = mapped_column(
         String(SUBMENU_DESCR_MAX_LEN)
     )
     menu_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('menu.id'))
+    menu: Mapped['Menu'] = relationship(back_populates='submenus')
     dishes: Mapped[list['Dish']] = relationship(cascade='all, delete-orphan')
 
 
 class Dish(Base):
     """Модель для блюд."""
-    title: Mapped[str] = mapped_column(String(DISH_TITLE_MAX_LEN))
+    title: Mapped[str] = mapped_column(
+        String(DISH_TITLE_MAX_LEN),
+        unique=True
+    )
     description: Mapped[str] = mapped_column(String(DISH_DESCR_MAX_LEN))
     price: Mapped[float] = mapped_column()
     submenu_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('submenu.id'))

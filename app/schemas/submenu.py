@@ -3,6 +3,7 @@ import uuid
 from pydantic import BaseModel, ConfigDict, Field, validator
 
 from app.core.constants import SUBMENU_DESCR_MAX_LEN, SUBMENU_TITLE_MAX_LEN
+from app.schemas.dish import DishDiscountDB
 from app.schemas.validators import field_cannot_be_null
 
 SUBMENU_TITLE_EXAMPLE = 'Название подменю'
@@ -65,5 +66,16 @@ class SubmenuDB(BaseModel):
 
 
 class SubmenuWithCountDB(SubmenuDB):
-    """Расширенная схема для отображения данных о подменю."""
+    """
+    Расширенная схема для отображения
+    данных о подменю с количеством блюд.
+    """
     dishes_count: int = Field(description='Количество блюд в подменю')
+
+
+class SubmenuNestedDishesDB(SubmenuDB):
+    """
+    Расширенная схема для отображения данных
+    о подменю с вложенными блюдами.
+    """
+    dishes: list[DishDiscountDB] = Field(description='Список блюд в подменю')
