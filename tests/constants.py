@@ -1,3 +1,4 @@
+GET_ALL_NESTED = 'get_all_nested'
 GET_ALL_MENUS = 'get_all_menus'
 CREATE_MENU = 'create_menu'
 GET_MENU = 'get_menu'

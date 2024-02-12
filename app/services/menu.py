@@ -7,8 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.custom_types import (
     MenuAnnotatedDict,
     MenuCachedDict,
-    MenuCachedNestedSubmenusDict,
-    MenuNestedSubmenusDict,
+    MenuCachedNestedDiscountDict,
+    MenuNestedDiscountDict,
 )
 from app.core.redis_cache import ALL_NESTED_PREFIX, LIST_PREFIX, OBJ_PREFIX, cache
 from app.crud import menu_crud
@@ -23,12 +23,12 @@ class MenuService:
     async def get_all_nested(
         self,
         session: AsyncSession
-    ) -> Sequence[MenuNestedSubmenusDict | MenuCachedNestedSubmenusDict]:
+    ) -> Sequence[MenuNestedDiscountDict | MenuCachedNestedDiscountDict]:
         """Получить список меню с вложенными подменю и блюдами."""
-        menu_list_cache: list[MenuCachedNestedSubmenusDict] | None = await cache.get(f'{ALL_NESTED_PREFIX}')
+        menu_list_cache: list[MenuCachedNestedDiscountDict] | None = await cache.get(f'{ALL_NESTED_PREFIX}')
         if menu_list_cache is not None:
             return menu_list_cache
-        menu_list = await menu_crud.get_all(session)
+        menu_list = await menu_crud.get_all_with_discount(session)
         await cache.set(f'{ALL_NESTED_PREFIX}', menu_list)
         return menu_list
 

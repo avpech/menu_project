@@ -2,9 +2,12 @@ import uuid
 
 from sqlalchemy import distinct, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
 
-from app.core.custom_types import MenuAnnotatedDict, MenuNestedSubmenusDict
+from app.core.custom_types import (
+    MenuAnnotatedDict,
+    MenuNestedDict,
+    MenuNestedDiscountDict,
+)
 from app.core.redis_cache import DISCOUNT_PREFIX, cache
 from app.crud.base import CRUDBase
 from app.models import Dish, Menu, Submenu
@@ -80,7 +83,7 @@ class CRUDMenu(
     async def get_all(
         self,
         session: AsyncSession
-    ) -> list[MenuNestedSubmenusDict]:
+    ) -> list[MenuNestedDict]:
         """Получение списка меню с вложенными подменю и блюдами."""
         dish_subq = (
             select(
@@ -127,28 +130,22 @@ class CRUDMenu(
             .join(submenu_subq, Menu.id == submenu_subq.c.menu_id, isouter=True)
             .group_by(Menu.id, submenu_subq.c.submenus)
         )
-        menus = db_objs.scalars().all()
+        return db_objs.scalars().all()
+
+    async def get_all_with_discount(
+        self,
+        session: AsyncSession
+    ) -> list[MenuNestedDiscountDict]:
+        """Получение списка меню с вложенными подменю и блюдами со скидками."""
+        menus = await self.get_all(session)
         for menu in menus:
             for submenu in menu['submenus']:
                 for dish in submenu['dishes']:
                     discount = await cache.get(f'{DISCOUNT_PREFIX}:{menu["id"]}:{submenu["id"]}:{dish["id"]}')
                     discount = discount or 0
                     dish['price'] = dish['price'] * (1 - discount)
-                    dish['discount'] = f'{(discount * 100):.0f}%'
-        return menus
-
-    async def get_all_objects(
-        self,
-        session: AsyncSession
-    ) -> list[Menu]:
-        """
-        Получение списка меню (экземпляров `Menu`) с присоединенными
-        (eager loaded) подменю и блюдами.
-        """
-        db_objs = await session.execute(
-            select(Menu).options(joinedload(Menu.submenus).joinedload(Submenu.dishes))
-        )
-        return db_objs.unique().scalars().all()
+                    dish['discount'] = f'{(discount * 100):.0f}%'  # type: ignore
+        return menus  # type: ignore
 
 
 menu_crud = CRUDMenu(Menu)

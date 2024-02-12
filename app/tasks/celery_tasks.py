@@ -10,16 +10,16 @@ from app.tasks.utils import delete_inconsistent_db_data, get_table_data, update_
 celery_app = Celery('hello', broker=broker_url)
 
 
-async def update_db():
+async def update_db() -> None:
     table_data = get_table_data()
     async with AsyncSessionLocal() as session:
-        db_data = await menu_crud.get_all_objects(session)
+        db_data = await menu_crud.get_all(session)
         await delete_inconsistent_db_data(table_data, db_data, session)
         await update_db_data(table_data, db_data, session)
 
 
 @celery_app.task
-def sync_table_db():
+def sync_table_db() -> None:
     loop = asyncio.get_event_loop()
     loop.run_until_complete(update_db())
 

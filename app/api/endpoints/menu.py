@@ -16,8 +16,8 @@ from app.core.constants import (
 from app.core.custom_types import (
     MenuAnnotatedDict,
     MenuCachedDict,
-    MenuCachedNestedSubmenusDict,
-    MenuNestedSubmenusDict,
+    MenuCachedNestedDiscountDict,
+    MenuNestedDiscountDict,
 )
 from app.core.db import get_async_session
 from app.models import Menu
@@ -65,7 +65,7 @@ async def get_all_menus(
 )
 async def get_all_nested(
     session: AsyncSession = Depends(get_async_session)
-) -> Sequence[MenuNestedSubmenusDict | MenuCachedNestedSubmenusDict]:
+) -> Sequence[MenuNestedDiscountDict | MenuCachedNestedDiscountDict]:
     """Получить список всех меню с вложенными подменю и блюдами."""
     return await menu_service.get_all_nested(session)
 

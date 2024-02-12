@@ -5,11 +5,12 @@ import pytest
 from httpx import AsyncClient
 from sqlalchemy import func, select
 
-from .conftest import Menu, TestingSessionLocal
+from .conftest import Dish, Menu, Submenu, TestingSessionLocal
 from .constants import (
     CREATE_MENU,
     DELETE_MENU,
     GET_ALL_MENUS,
+    GET_ALL_NESTED,
     GET_MENU,
     MENU_OBJ_URL,
     MENUS_URL,
@@ -17,6 +18,50 @@ from .constants import (
     UPDATE_MENU,
 )
 from .utils import reverse
+
+
+class TestGetAllMenusNested:
+
+    async def test_menu_nested_get_empty_list(self, client: AsyncClient):
+        url = reverse(GET_ALL_NESTED)
+        response = await client.get(url)
+        assert response.status_code == HTTPStatus.OK, (
+            f'GET-запрос к `{url}` должен возвращать статус 200 '
+            '(случай, когда в базе отсутствуют меню)'
+        )
+        assert response.json() == [], (
+            f'GET-запрос к `{url}` должен возвращать пустой список, '
+            'когда в базе отсутствуют меню'
+        )
+
+    async def test_menu_nested_get_list(
+        self,
+        client: AsyncClient,
+        menu: Menu,
+        submenu: Submenu,
+        dish: Dish
+    ):
+        url = reverse(GET_ALL_NESTED)
+        response = await client.get(url)
+        response_data = response.json()
+        assert response.status_code == HTTPStatus.OK, (
+            f'GET-запрос к `{url}` должен возвращать статус 200 '
+            '(случай, когда в базе присутствуют меню)'
+        )
+        assert response_data != [], (
+            f'GET-запрос к `{url}` не должен возвращать пустой список, '
+            'когда в базе присутствуют меню'
+        )
+        submenus_data = response_data[0].get('submenus')
+        assert submenus_data != [], (
+            f'При GET-запросе к `{url}` список подменю не должен быть пустым, '
+            'когда в базе присутствуют связанные с меню подменю'
+        )
+        dishes_data = submenus_data[0].get('dishes')
+        assert dishes_data != [], (
+            f'При GET-запросе к `{url}` список блюд не должен быть пустым, '
+            'когда в базе присутствуют связанные с подменю блюда'
+        )
 
 
 class TestGetAllMenus:

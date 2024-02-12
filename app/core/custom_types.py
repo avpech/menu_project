@@ -67,8 +67,8 @@ class DishDict(TypedDict):
     submenu_id: uuid.UUID
 
 
-class SubmenuNesteDishesDict(TypedDict):
-    """Словарь для данных о подменю с вложенными блюдами."""
+class SubmenuNestedDiscountDict(TypedDict):
+    """Словарь для данных о подменю с вложенными блюдами со скидкой."""
     id: uuid.UUID
     title: str
     description: str
@@ -76,8 +76,11 @@ class SubmenuNesteDishesDict(TypedDict):
     dishes: list[DishDiscountDict]
 
 
-class SubmenuCachedNesteDishesDict(TypedDict):
-    """Словарь для кжшированных данных о подменю с вложенными блюдами."""
+class SubmenuCachedNestedDiscountDict(TypedDict):
+    """
+    Словарь для кжшированных данных о
+    подменю с вложенными блюдами со скидкой.
+    """
     id: str
     title: str
     description: str
@@ -85,17 +88,43 @@ class SubmenuCachedNesteDishesDict(TypedDict):
     dishes: list[DishCachedDiscountDict]
 
 
-class MenuNestedSubmenusDict(TypedDict):
-    """Словарь для данных о меню с вложенными подменю."""
+class MenuNestedDiscountDict(TypedDict):
+    """
+    Словарь для данных о меню с вложенными
+    подменю и блюдами со скидкой.
+    """
     id: uuid.UUID
     title: str
     description: str
-    submenus: list[SubmenuNesteDishesDict]
+    submenus: list[SubmenuNestedDiscountDict]
 
 
-class MenuCachedNestedSubmenusDict(TypedDict):
-    """Словарь для кэшированных данных о меню с вложенными подменю."""
+class MenuCachedNestedDiscountDict(TypedDict):
+    """
+    Словарь для кэшированных данных о меню
+    с вложенными подменю и блюдами со скидкой.
+    """
     id: str
     title: str
     description: str
-    submenus: list[SubmenuCachedNesteDishesDict]
+    submenus: list[SubmenuCachedNestedDiscountDict]
+
+
+class SubmenuNestedDict(TypedDict):
+    """Словарь для данных о подменю с вложенными блюдами."""
+    id: uuid.UUID
+    title: str
+    description: str
+    menu_id: uuid.UUID
+    dishes: list[DishDict]
+
+
+class MenuNestedDict(TypedDict):
+    """
+    Словарь для данных о меню с вложенными
+    подменю и блюдами.
+    """
+    id: uuid.UUID
+    title: str
+    description: str
+    submenus: list[SubmenuNestedDict]
