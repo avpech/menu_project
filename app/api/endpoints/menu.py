@@ -3,7 +3,6 @@ from http import HTTPStatus
 from typing import Sequence
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Path
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import (
     DELETE_TAG,
@@ -19,7 +18,6 @@ from app.core.custom_types import (
     MenuCachedNestedDiscountDict,
     MenuNestedDiscountDict,
 )
-from app.core.db import get_async_session
 from app.models import Menu
 from app.schemas.errors import MenuNotFoundError
 from app.schemas.menu import (
@@ -29,7 +27,7 @@ from app.schemas.menu import (
     MenuUpdate,
     MenuWithCountDB,
 )
-from app.services import menu_service
+from app.services.menu import MenuService
 
 router = APIRouter()
 
@@ -42,7 +40,7 @@ router = APIRouter()
     tags=[GET_LIST_TAG]
 )
 async def get_all_menus(
-    session: AsyncSession = Depends(get_async_session)
+    menu_service: MenuService = Depends()
 ) -> Sequence[MenuAnnotatedDict | MenuCachedDict]:
     """
     Получить список всех меню.
@@ -53,7 +51,7 @@ async def get_all_menus(
     - **submenus_count**: Количество подменю в меню.
     - **dishes_count**: Количество блюд в меню.
     """
-    return await menu_service.get_list(session)
+    return await menu_service.get_list()
 
 
 @router.get(
@@ -64,10 +62,10 @@ async def get_all_menus(
     tags=[GET_LIST_TAG]
 )
 async def get_all_nested(
-    session: AsyncSession = Depends(get_async_session)
+    menu_service: MenuService = Depends()
 ) -> Sequence[MenuNestedDiscountDict | MenuCachedNestedDiscountDict]:
     """Получить список всех меню с вложенными подменю и блюдами."""
-    return await menu_service.get_all_nested(session)
+    return await menu_service.get_all_nested()
 
 
 @router.post(
@@ -80,7 +78,7 @@ async def get_all_nested(
 )
 async def create_menu(
     menu: MenuCreate,
-    session: AsyncSession = Depends(get_async_session),
+    menu_service: MenuService = Depends(),
     *,
     background_tasks: BackgroundTasks,
 ) -> Menu:
@@ -91,7 +89,7 @@ async def create_menu(
     - **title**: Название меню.
     - **description**: Описание меню.
     """
-    return await menu_service.create(menu, session, background_tasks)
+    return await menu_service.create(menu, background_tasks)
 
 
 @router.get(
@@ -104,7 +102,7 @@ async def create_menu(
 )
 async def get_menu(
     menu_id: uuid.UUID = Path(..., description=MENU_ID_DESCR),
-    session: AsyncSession = Depends(get_async_session)
+    menu_service: MenuService = Depends()
 ) -> MenuAnnotatedDict | MenuCachedDict:
     """
     Получить меню по id.
@@ -115,7 +113,7 @@ async def get_menu(
     - **submenus_count**: Количество подменю в меню.
     - **dishes_count**: Количество блюд в меню.
     """
-    return await menu_service.get(menu_id, session)
+    return await menu_service.get(menu_id)
 
 
 @router.patch(
@@ -129,7 +127,7 @@ async def get_menu(
 async def update_menu(
     obj_in: MenuUpdate,
     menu_id: uuid.UUID = Path(..., description=MENU_ID_DESCR),
-    session: AsyncSession = Depends(get_async_session),
+    menu_service: MenuService = Depends(),
     *,
     background_tasks: BackgroundTasks
 ) -> Menu:
@@ -140,7 +138,7 @@ async def update_menu(
     - **title**: Название меню.
     - **description**: Описание меню.
     """
-    return await menu_service.update(menu_id, obj_in, session, background_tasks)
+    return await menu_service.update(menu_id, obj_in, background_tasks)
 
 
 @router.delete(
@@ -153,7 +151,7 @@ async def update_menu(
 )
 async def delete_menu(
     menu_id: uuid.UUID = Path(..., description=MENU_ID_DESCR),
-    session: AsyncSession = Depends(get_async_session),
+    menu_service: MenuService = Depends(),
     *,
     background_tasks: BackgroundTasks
 ) -> Menu:
@@ -164,4 +162,4 @@ async def delete_menu(
     - **title**: Название меню.
     - **description**: Описание меню.
     """
-    return await menu_service.delete(menu_id, session, background_tasks)
+    return await menu_service.delete(menu_id, background_tasks)

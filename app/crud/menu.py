@@ -1,5 +1,6 @@
 import uuid
 
+from fastapi import Depends
 from sqlalchemy import distinct, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,6 +9,7 @@ from app.core.custom_types import (
     MenuNestedDict,
     MenuNestedDiscountDict,
 )
+from app.core.db import get_async_session
 from app.core.redis_cache import DISCOUNT_PREFIX, cache
 from app.crud.base import CRUDBase
 from app.models import Dish, Menu, Submenu
@@ -19,12 +21,16 @@ class CRUDMenu(
 ):
     """Класс CRUD-операций для модели Menu."""
 
-    async def get_multi_annotated(
+    def __init__(
         self,
-        session: AsyncSession
-    ) -> list[MenuAnnotatedDict]:
+        session: AsyncSession = Depends(get_async_session)
+    ) -> None:
+        self.model = Menu
+        self.session = session
+
+    async def get_multi_annotated(self) -> list[MenuAnnotatedDict]:
         """Получение списка объектов с аннотациями."""
-        db_objs = await session.execute(
+        db_objs = await self.session.execute(
             select(Menu, func.count(distinct(Submenu.id)), func.count(Dish.id))
             .select_from(Menu)
             .join(Submenu, isouter=True)
@@ -43,11 +49,10 @@ class CRUDMenu(
 
     async def get_annotated(
         self,
-        obj_id: uuid.UUID,
-        session: AsyncSession,
+        obj_id: uuid.UUID
     ) -> MenuAnnotatedDict | None:
         """Получение объекта с аннотациями по id."""
-        db_obj = await session.execute(
+        db_obj = await self.session.execute(
             select(Menu, func.count(distinct(Submenu.id)), func.count(Dish.id))
             .select_from(Menu)
             .join(Submenu, isouter=True)
@@ -69,21 +74,17 @@ class CRUDMenu(
 
     async def get_annotated_or_404(
         self,
-        obj_id: uuid.UUID,
-        session: AsyncSession,
+        obj_id: uuid.UUID
     ) -> MenuAnnotatedDict:
         """
         Получение объекта с аннотациями по id.
 
         При отсутствии объекта вызывает HTTPException со статусом 404.
         """
-        obj = await self.get_annotated(obj_id, session)
+        obj = await self.get_annotated(obj_id)
         return self._exists_or_404(obj, detail='menu not found')
 
-    async def get_all(
-        self,
-        session: AsyncSession
-    ) -> list[MenuNestedDict]:
+    async def get_all(self) -> list[MenuNestedDict]:
         """Получение списка меню с вложенными подменю и блюдами."""
         dish_subq = (
             select(
@@ -118,7 +119,7 @@ class CRUDMenu(
             .group_by(Submenu.menu_id)
             .subquery()
         )
-        db_objs = await session.execute(
+        db_objs = await self.session.execute(
             select(
                 func.jsonb_build_object(
                     'id', Menu.id,
@@ -132,12 +133,9 @@ class CRUDMenu(
         )
         return db_objs.scalars().all()
 
-    async def get_all_with_discount(
-        self,
-        session: AsyncSession
-    ) -> list[MenuNestedDiscountDict]:
+    async def get_all_with_discount(self) -> list[MenuNestedDiscountDict]:
         """Получение списка меню с вложенными подменю и блюдами со скидками."""
-        menus = await self.get_all(session)
+        menus = await self.get_all()
         for menu in menus:
             for submenu in menu['submenus']:
                 for dish in submenu['dishes']:
@@ -146,6 +144,3 @@ class CRUDMenu(
                     dish['price'] = dish['price'] * (1 - discount)
                     dish['discount'] = f'{(discount * 100):.0f}%'  # type: ignore
         return menus  # type: ignore
-
-
-menu_crud = CRUDMenu(Menu)

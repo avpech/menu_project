@@ -3,7 +3,6 @@ from http import HTTPStatus
 from typing import Sequence
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Path
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import (
     DELETE_TAG,
@@ -15,7 +14,6 @@ from app.core.constants import (
     SUBMENU_ID_DESCR,
 )
 from app.core.custom_types import SubmenuAnnotatedDict, SubmenuCachedDict
-from app.core.db import get_async_session
 from app.models import Submenu
 from app.schemas.errors import SubmenuNotFoundError, URLDoesNotExistError
 from app.schemas.submenu import (
@@ -24,7 +22,7 @@ from app.schemas.submenu import (
     SubmenuUpdate,
     SubmenuWithCountDB,
 )
-from app.services import submenu_service
+from app.services.submenu import SubmenuService
 
 router = APIRouter()
 
@@ -39,7 +37,7 @@ router = APIRouter()
 )
 async def get_all_submenus(
     menu_id: uuid.UUID = Path(..., description=MENU_ID_DESCR),
-    session: AsyncSession = Depends(get_async_session)
+    submenu_service: SubmenuService = Depends()
 ) -> Sequence[SubmenuAnnotatedDict | SubmenuCachedDict]:
     """
     Получить список всех подменю.
@@ -50,7 +48,7 @@ async def get_all_submenus(
     - **menu_id**: Идентификатор связанного меню.
     - **dishes_count**: Количество блюд в подменю.
     """
-    return await submenu_service.get_list(menu_id, session)
+    return await submenu_service.get_list(menu_id)
 
 
 @router.post(
@@ -65,7 +63,7 @@ async def get_all_submenus(
 async def create_submenu(
     submenu: SubmenuCreate,
     menu_id: uuid.UUID = Path(..., description=MENU_ID_DESCR),
-    session: AsyncSession = Depends(get_async_session),
+    submenu_service: SubmenuService = Depends(),
     *,
     background_tasks: BackgroundTasks
 ) -> Submenu:
@@ -77,7 +75,7 @@ async def create_submenu(
     - **description**: Описание подменю.
     - **menu_id**: Идентификатор связанного меню.
     """
-    return await submenu_service.create(menu_id, submenu, session, background_tasks)
+    return await submenu_service.create(menu_id, submenu, background_tasks)
 
 
 @router.get(
@@ -91,7 +89,7 @@ async def create_submenu(
 async def get_submenu(
     menu_id: uuid.UUID = Path(..., description=MENU_ID_DESCR),
     submenu_id: uuid.UUID = Path(..., description=SUBMENU_ID_DESCR),
-    session: AsyncSession = Depends(get_async_session)
+    submenu_service: SubmenuService = Depends()
 ) -> SubmenuAnnotatedDict | SubmenuCachedDict:
     """
     Получить подменю по id.
@@ -102,7 +100,7 @@ async def get_submenu(
     - **menu_id**: Идентификатор связанного меню.
     - **dishes_count**: Количество блюд в подменю.
     """
-    return await submenu_service.get(menu_id, submenu_id, session)
+    return await submenu_service.get(menu_id, submenu_id)
 
 
 @router.patch(
@@ -117,7 +115,7 @@ async def update_submenu(
     obj_in: SubmenuUpdate,
     menu_id: uuid.UUID = Path(..., description=MENU_ID_DESCR),
     submenu_id: uuid.UUID = Path(..., description=SUBMENU_ID_DESCR),
-    session: AsyncSession = Depends(get_async_session),
+    submenu_service: SubmenuService = Depends(),
     *,
     background_tasks: BackgroundTasks
 ) -> Submenu:
@@ -129,7 +127,7 @@ async def update_submenu(
     - **description**: Описание подменю.
     - **menu_id**: Идентификатор связанного меню.
     """
-    return await submenu_service.update(menu_id, submenu_id, obj_in, session, background_tasks)
+    return await submenu_service.update(menu_id, submenu_id, obj_in, background_tasks)
 
 
 @router.delete(
@@ -143,7 +141,7 @@ async def update_submenu(
 async def delete_submenu(
     menu_id: uuid.UUID = Path(..., description=MENU_ID_DESCR),
     submenu_id: uuid.UUID = Path(..., description=SUBMENU_ID_DESCR),
-    session: AsyncSession = Depends(get_async_session),
+    submenu_service: SubmenuService = Depends(),
     *,
     background_tasks: BackgroundTasks
 ) -> Submenu:
@@ -155,4 +153,4 @@ async def delete_submenu(
     - **description**: Описание подменю.
     - **menu_id**: Идентификатор связанного меню.
     """
-    return await submenu_service.delete(menu_id, submenu_id, session, background_tasks)
+    return await submenu_service.delete(menu_id, submenu_id, background_tasks)

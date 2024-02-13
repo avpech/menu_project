@@ -1,9 +1,11 @@
 import uuid
 
+from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.custom_types import DishDiscountDict
+from app.core.db import get_async_session
 from app.core.redis_cache import DISCOUNT_PREFIX, cache
 from app.crud.base import CRUDBase
 from app.models import Dish, Submenu
@@ -15,14 +17,20 @@ class CRUDDish(
 ):
     """Класс CRUD-операций для модели Dish."""
 
+    def __init__(
+        self,
+        session: AsyncSession = Depends(get_async_session)
+    ) -> None:
+        self.model = Dish
+        self.session = session
+
     async def get_multi_filtered(
         self,
         menu_id: uuid.UUID,
-        submenu_id: uuid.UUID,
-        session: AsyncSession
+        submenu_id: uuid.UUID
     ) -> list[DishDiscountDict]:
         """Получение списка отфильтрованных по `menu_id` и `submenu_id` объектов."""
-        db_objs = await session.execute(
+        db_objs = await self.session.execute(
             select(Dish)
             .join(Submenu, Submenu.id == Dish.submenu_id)
             .where(Dish.submenu_id == submenu_id, Submenu.menu_id == menu_id)
@@ -47,15 +55,14 @@ class CRUDDish(
         self,
         menu_id: uuid.UUID,
         submenu_id: uuid.UUID,
-        obj_id: uuid.UUID,
-        session: AsyncSession,
+        obj_id: uuid.UUID
     ) -> DishDiscountDict | None:
         """
         Получение объекта по id, если он связан с соответствующими меню и субменю.
 
         Добавляется поле `discount`. Цена отображается со скидкой.
         """
-        dish = await session.execute(
+        dish = await self.session.execute(
             select(Dish)
             .join(Submenu, Submenu.id == Dish.submenu_id)
             .where(
@@ -82,8 +89,7 @@ class CRUDDish(
         self,
         menu_id: uuid.UUID,
         submenu_id: uuid.UUID,
-        obj_id: uuid.UUID,
-        session: AsyncSession,
+        obj_id: uuid.UUID
     ) -> DishDiscountDict:
         """
         Получение объекта по id, если он связан с соответствующими меню и субменю.
@@ -91,18 +97,17 @@ class CRUDDish(
         Добавляется поле `discount`. Цена отображается со скидкой.
         При отсутствии объекта вызывает HTTPException со статусом 404.
         """
-        obj = await self.get_filtered_discounted(menu_id, submenu_id, obj_id, session)
+        obj = await self.get_filtered_discounted(menu_id, submenu_id, obj_id)
         return self._exists_or_404(obj, detail='dish not found')
 
     async def get_filtered(
         self,
         menu_id: uuid.UUID,
         submenu_id: uuid.UUID,
-        obj_id: uuid.UUID,
-        session: AsyncSession,
+        obj_id: uuid.UUID
     ) -> Dish | None:
         """Получение объекта по id, если он связан с соответствующими меню и субменю."""
-        dish = await session.execute(
+        dish = await self.session.execute(
             select(Dish)
             .join(Submenu, Submenu.id == Dish.submenu_id)
             .where(
@@ -117,16 +122,12 @@ class CRUDDish(
         self,
         menu_id: uuid.UUID,
         submenu_id: uuid.UUID,
-        obj_id: uuid.UUID,
-        session: AsyncSession,
+        obj_id: uuid.UUID
     ) -> Dish:
         """
         Получение объекта по id, если он связан с соответствующими меню и субменю.
 
         При отсутствии объекта вызывает HTTPException со статусом 404.
         """
-        obj = await self.get_filtered(menu_id, submenu_id, obj_id, session)
+        obj = await self.get_filtered(menu_id, submenu_id, obj_id)
         return self._exists_or_404(obj, detail='dish not found')
-
-
-dish_crud = CRUDDish(Dish)

@@ -4,8 +4,10 @@ from celery import Celery
 
 from app.core.config import broker_url
 from app.core.db import AsyncSessionLocal
-from app.crud import menu_crud
-from app.tasks.utils import delete_inconsistent_db_data, get_table_data, update_db_data
+from app.crud.dish import CRUDDish
+from app.crud.menu import CRUDMenu
+from app.crud.submenu import CRUDSubmenu
+from app.tasks.utils import SyncDatabaseData, get_table_data
 
 celery_app = Celery('hello', broker=broker_url)
 
@@ -13,9 +15,19 @@ celery_app = Celery('hello', broker=broker_url)
 async def update_db() -> None:
     table_data = get_table_data()
     async with AsyncSessionLocal() as session:
-        db_data = await menu_crud.get_all(session)
-        await delete_inconsistent_db_data(table_data, db_data, session)
-        await update_db_data(table_data, db_data, session)
+
+        menu_crud = CRUDMenu()
+        menu_crud.session = session
+        submenu_crud = CRUDSubmenu()
+        submenu_crud.session = session
+        dish_crud = CRUDDish()
+        dish_crud.session = session
+        sync = SyncDatabaseData(menu_crud, submenu_crud, dish_crud)
+
+        db_data = await menu_crud.get_all()
+
+        await sync.delete_inconsistent_db_data(table_data, db_data)
+        await sync.update_db_data(table_data, db_data)
 
 
 @celery_app.task

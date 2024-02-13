@@ -3,7 +3,6 @@ from http import HTTPStatus
 from typing import Sequence
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Path
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import (
     DELETE_TAG,
@@ -16,11 +15,10 @@ from app.core.constants import (
     SUBMENU_ID_DESCR,
 )
 from app.core.custom_types import DishCachedDiscountDict, DishDiscountDict
-from app.core.db import get_async_session
 from app.models import Dish
 from app.schemas.dish import DishCreate, DishDB, DishDiscountDB, DishUpdate
 from app.schemas.errors import DishNotFoundError, URLDoesNotExistError
-from app.services import dish_service
+from app.services.dish import DishService
 
 router = APIRouter()
 
@@ -36,7 +34,7 @@ router = APIRouter()
 async def get_all_dishes(
     menu_id: uuid.UUID = Path(..., description=MENU_ID_DESCR),
     submenu_id: uuid.UUID = Path(..., description=SUBMENU_ID_DESCR),
-    session: AsyncSession = Depends(get_async_session)
+    dish_service: DishService = Depends()
 ) -> Sequence[DishDiscountDict | DishCachedDiscountDict]:
     """
     Получить список всех блюд.
@@ -48,7 +46,7 @@ async def get_all_dishes(
     - **discount**: Скидка на блюдо.
     - **submenu_id**: Идентификатор связанного подменю.
     """
-    return await dish_service.get_list(menu_id, submenu_id, session)
+    return await dish_service.get_list(menu_id, submenu_id)
 
 
 @router.post(
@@ -64,7 +62,7 @@ async def create_dish(
     dish: DishCreate,
     menu_id: uuid.UUID = Path(..., description=MENU_ID_DESCR),
     submenu_id: uuid.UUID = Path(..., description=SUBMENU_ID_DESCR),
-    session: AsyncSession = Depends(get_async_session),
+    dish_service: DishService = Depends(),
     *,
     background_tasks: BackgroundTasks
 ) -> Dish:
@@ -77,7 +75,7 @@ async def create_dish(
     - **price**: Цена блюда.
     - **submenu_id**: Идентификатор связанного подменю.
     """
-    return await dish_service.create(menu_id, submenu_id, dish, session, background_tasks)
+    return await dish_service.create(menu_id, submenu_id, dish, background_tasks)
 
 
 @router.get(
@@ -92,7 +90,7 @@ async def get_dish(
     menu_id: uuid.UUID = Path(..., description=MENU_ID_DESCR),
     submenu_id: uuid.UUID = Path(..., description=SUBMENU_ID_DESCR),
     dish_id: uuid.UUID = Path(..., description=DISH_ID_DESCR),
-    session: AsyncSession = Depends(get_async_session)
+    dish_service: DishService = Depends()
 ) -> DishDiscountDict | DishCachedDiscountDict:
     """
     Получить блюдо по id.
@@ -104,7 +102,7 @@ async def get_dish(
     - **discount**: Скидка на блюдо.
     - **submenu_id**: Идентификатор связанного подменю.
     """
-    return await dish_service.get(menu_id, submenu_id, dish_id, session)
+    return await dish_service.get(menu_id, submenu_id, dish_id)
 
 
 @router.patch(
@@ -120,7 +118,7 @@ async def update_dish(
     menu_id: uuid.UUID = Path(..., description=MENU_ID_DESCR),
     submenu_id: uuid.UUID = Path(..., description=SUBMENU_ID_DESCR),
     dish_id: uuid.UUID = Path(..., description=DISH_ID_DESCR),
-    session: AsyncSession = Depends(get_async_session),
+    dish_service: DishService = Depends(),
     *,
     background_tasks: BackgroundTasks
 ) -> Dish:
@@ -133,7 +131,7 @@ async def update_dish(
     - **price**: Цена блюда.
     - **submenu_id**: Идентификатор связанного подменю.
     """
-    return await dish_service.update(menu_id, submenu_id, dish_id, obj_in, session, background_tasks)
+    return await dish_service.update(menu_id, submenu_id, dish_id, obj_in, background_tasks)
 
 
 @router.delete(
@@ -148,7 +146,7 @@ async def delete_dish(
     menu_id: uuid.UUID = Path(..., description=MENU_ID_DESCR),
     submenu_id: uuid.UUID = Path(..., description=SUBMENU_ID_DESCR),
     dish_id: uuid.UUID = Path(..., description=DISH_ID_DESCR),
-    session: AsyncSession = Depends(get_async_session),
+    dish_service: DishService = Depends(),
     *,
     background_tasks: BackgroundTasks
 ) -> Dish:
@@ -161,4 +159,4 @@ async def delete_dish(
     - **price**: Цена блюда.
     - **submenu_id**: Идентификатор связанного подменю.
     """
-    return await dish_service.delete(menu_id, submenu_id, dish_id, session, background_tasks)
+    return await dish_service.delete(menu_id, submenu_id, dish_id, background_tasks)
